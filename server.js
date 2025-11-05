@@ -1,5 +1,4 @@
-// GCSE Prep Pro - Complete Backend Server
-
+// server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -47,4 +46,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = app;
+module.exports = { app };
