@@ -1,20 +1,9 @@
 // GCSE Prep Pro - Database Seeding Script
 // Populates the database with sample users, questions, videos, and content
 
-const mongoose = require('mongoose');
+const path = require('path');
+const { db } = require(path.join(__dirname, 'config', 'firebase.js'));
 const bcrypt = require('bcryptjs');
-const User = require('./models/User');
-const Question = require('./models/Question');
-const Video = require('./models/Video');
-const StudySession = require('./models/StudySession');
-const QuizResult = require('./models/QuizResult');
-const Flashcard = require('./models/Flashcard');
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/gcse-prep-pro', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
 
 // Sample Questions Database
 const sampleQuestions = {
@@ -294,24 +283,54 @@ const sampleFlashcards = [
     }
 ];
 
+// Helper function to delete all documents in a collection
+async function deleteCollection(collectionPath, batchSize = 100) {
+    const collectionRef = db.collection(collectionPath);
+    const query = collectionRef.orderBy('__name__').limit(batchSize);
+
+    return new Promise((resolve, reject) => {
+        deleteQueryBatch(query, resolve).catch(reject);
+    });
+
+    async function deleteQueryBatch(query, resolve) {
+        const snapshot = await query.get();
+
+        if (snapshot.size === 0) {
+            return resolve();
+        }
+
+        const batch = db.batch();
+        snapshot.docs.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+
+        process.nextTick(() => {
+            deleteQueryBatch(query, resolve);
+        });
+    }
+}
+
 // Seed Database Function
 async function seedDatabase() {
     try {
         console.log('🌱 Seeding database...');
 
         // Clear existing data
-        await User.deleteMany({});
-        await Question.deleteMany({});
-        await Video.deleteMany({});
-        await StudySession.deleteMany({});
-        await QuizResult.deleteMany({});
-        await Flashcard.deleteMany({});
+        await Promise.all([
+            deleteCollection('users'),
+            deleteCollection('questions'),
+            deleteCollection('videos'),
+            deleteCollection('studySessions'),
+            deleteCollection('quizResults'),
+            deleteCollection('flashcards')
+        ]);
 
         console.log('✅ Cleared existing data');
 
         // Create sample users
         const hashedPassword = await bcrypt.hash('password123', 10);
-        
+
         const sampleUsers = [
             {
                 username: 'student1',
@@ -331,15 +350,21 @@ async function seedDatabase() {
             }
         ];
 
-        const createdUsers = await User.insertMany(sampleUsers);
+        const createdUsers = [];
+        for (const userData of sampleUsers) {
+            const userRef = await db.collection('users').add(userData);
+            createdUsers.push({ _id: userRef.id, ...userData });
+        }
         console.log('✅ Created sample users');
 
         // Insert questions
+        const questionsBatch = db.batch();
         let questionCount = 0;
         for (const [subject, topics] of Object.entries(sampleQuestions)) {
             for (const [topic, questions] of Object.entries(topics)) {
                 for (const question of questions) {
-                    await Question.create({
+                    const questionRef = db.collection('questions').doc();
+                    questionsBatch.set(questionRef, {
                         ...question,
                         subject,
                         topic
@@ -348,26 +373,36 @@ async function seedDatabase() {
                 }
             }
         }
+        await questionsBatch.commit();
         console.log(`✅ Created ${questionCount} questions`);
 
         // Insert videos
-        await Video.insertMany(sampleVideos);
+        const videosBatch = db.batch();
+        sampleVideos.forEach(video => {
+            const videoRef = db.collection('videos').doc();
+            videosBatch.set(videoRef, video);
+        });
+        await videosBatch.commit();
         console.log(`✅ Created ${sampleVideos.length} videos`);
 
         // Insert flashcards for each user
+        const flashcardsBatch = db.batch();
         let flashcardCount = 0;
         for (const user of createdUsers) {
             for (const flashcard of sampleFlashcards) {
-                await Flashcard.create({
+                const flashcardRef = db.collection('flashcards').doc();
+                flashcardsBatch.set(flashcardRef, {
                     ...flashcard,
-                    user: user._id
+                    user: user._id // Storing user ID as a string
                 });
                 flashcardCount++;
             }
         }
+        await flashcardsBatch.commit();
         console.log(`✅ Created ${flashcardCount} flashcards`);
 
         // Create sample study sessions
+        const sessionsBatch = db.batch();
         const sampleSessions = [
             {
                 user: createdUsers[0]._id,
@@ -375,7 +410,8 @@ async function seedDatabase() {
                 topic: 'algebra',
                 sessionType: 'revision',
                 duration: 60,
-                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+                completed: true
             },
             {
                 user: createdUsers[0]._id,
@@ -383,14 +419,19 @@ async function seedDatabase() {
                 topic: 'biology',
                 sessionType: 'practice',
                 duration: 45,
-                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+                completed: true
             }
         ];
-
-        await StudySession.insertMany(sampleSessions);
+        sampleSessions.forEach(session => {
+            const sessionRef = db.collection('studySessions').doc();
+            sessionsBatch.set(sessionRef, session);
+        });
+        await sessionsBatch.commit();
         console.log(`✅ Created ${sampleSessions.length} study sessions`);
 
         // Create sample quiz results
+        const resultsBatch = db.batch();
         const sampleResults = [
             {
                 user: createdUsers[0]._id,
@@ -413,8 +454,11 @@ async function seedDatabase() {
                 timeSpent: 1200
             }
         ];
-
-        await QuizResult.insertMany(sampleResults);
+        sampleResults.forEach(result => {
+            const resultRef = db.collection('quizResults').doc();
+            resultsBatch.set(resultRef, result);
+        });
+        await resultsBatch.commit();
         console.log(`✅ Created ${sampleResults.length} quiz results`);
 
         console.log('🎉 Database seeding completed successfully!');
@@ -424,8 +468,6 @@ async function seedDatabase() {
 
     } catch (error) {
         console.error('❌ Error seeding database:', error);
-    } finally {
-        mongoose.connection.close();
     }
 }
 
