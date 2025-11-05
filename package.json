@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "seed": "node seedDatabase.js",
     "test": "jest",
-    "build": "netlify-lambda build lambda-src"
+    "build": "netlify-lambda build lambda-src -c webpack.config.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
