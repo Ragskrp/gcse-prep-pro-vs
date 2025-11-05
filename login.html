@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GCSE Prep Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage-green: #2D5A3D;
+            --warm-charcoal: #3A3A3A;
+            --soft-cream: #FAF9F6;
+            --muted-coral: #E8A598;
+            --dusty-blue: #7B9BB0;
+            --golden-yellow: #F4D03F;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--soft-cream) 0%, #F5F3F0 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(rgba(45, 90, 61, 0.8), rgba(45, 90, 61, 0.9)), 
+                        url('resources/hero-study.jpg') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(250, 249, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 90, 61, 0.1);
+            box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+        }
+        
+        .auth-input {
+            transition: all 0.3s ease;
+        }
+        
+        .auth-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.15);
+        }
+        
+        .auth-button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(45, 90, 61, 0.2);
+        }
+        
+        .auth-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .auth-button:hover::before {
+            left: 100%;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+        .shape:nth-child(3) { bottom: 20%; left: 15%; animation-delay: 2s; }
+        .shape:nth-child(4) { bottom: 10%; right: 20%; animation-delay: 3s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-weak { background: #EF4444; width: 33%; }
+        .strength-medium { background: #F59E0B; width: 66%; }
+        .strength-strong { background: #10B981; width: 100%; }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-screen flex items-center justify-center relative">
+        <div class="floating-shapes">
+            <div class="shape text-6xl">📚</div>
+            <div class="shape text-5xl">🎓</div>
+            <div class="shape text-4xl">✏️</div>
+            <div class="shape text-5xl">📊</div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left Side - Brand -->
+                <div class="text-center lg:text-left text-white">
+                    <div class="text-6xl mb-6">📚</div>
+                    <h1 class="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
+                        GCSE
+                        <span class="block" style="color: var(--golden-yellow);">Prep Pro</span>
+                    </h1>
+                    <p class="text-xl lg:text-2xl mb-8 opacity-90">
+                        Your complete learning companion for GCSE success. 
+                        Personalized study plans, interactive quizzes, and expert guidance.
+                    </p>
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-4 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--golden-yellow);"></i>
+                            <span>Personalized Learning</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--golden-yellow);"></i>
+                            <span>Expert Video Lessons</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle mr-2" style="color: var(--golden-yellow);"></i>
+                            <span>Progress Tracking</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Side - Auth Form -->
+                <div class="glass-card rounded-2xl p-8 lg:p-12">
+                    <!-- Login Form -->
+                    <div id="login-form" class="auth-container">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold mb-2" style="color: var(--sage-green);">Welcome Back</h2>
+                            <p class="text-gray-600">Continue your learning journey</p>
+                        </div>
+                        
+                        <form id="login-form-element">
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Email or Username</label>
+                                    <input type="text" id="login-email" required
+                                           class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                           placeholder="Enter your email or username">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Password</label>
+                                    <div class="relative">
+                                        <input type="password" id="login-password" required
+                                               class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent pr-12"
+                                               placeholder="Enter your password">
+                                        <button type="button" onclick="togglePassword('login-password')" 
+                                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" style="color: var(--sage-green);">
+                                        <span class="text-sm">Remember me</span>
+                                    </label>
+                                    <a href="#" class="text-sm" style="color: var(--sage-green);">Forgot password?</a>
+                                </div>
+                                
+                                <button type="submit" class="auth-button w-full py-4 rounded-lg font-semibold text-white text-lg" style="background: var(--sage-green);">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>
+                                    Sign In
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-8 text-center">
+                            <p class="text-gray-600 mb-4">Don't have an account?</p>
+                            <button onclick="showSignup()" class="w-full py-3 rounded-lg border-2 font-semibold" style="border-color: var(--sage-green); color: var(--sage-green);">
+                                Create Account
+                            </button>
+                        </div>
+                        
+                        <!-- Demo Login -->
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <p class="text-sm text-blue-800 mb-2"><strong>Demo Account:</strong></p>
+                            <p class="text-xs text-blue-700">Email: student1@example.com</p>
+                            <p class="text-xs text-blue-700">Password: password123</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Signup Form -->
+                    <div id="signup-form" class="auth-container hidden">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold mb-2" style="color: var(--sage-green);">Create Account</h2>
+                            <p class="text-gray-600">Start your GCSE success journey</p>
+                        </div>
+                        
+                        <form id="signup-form-element">
+                            <div class="space-y-6">
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">First Name</label>
+                                        <input type="text" id="signup-firstname" required
+                                               class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                               placeholder="Your first name">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Last Name</label>
+                                        <input type="text" id="signup-lastname" required
+                                               class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                               placeholder="Your last name">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Username</label>
+                                    <input type="text" id="signup-username" required
+                                           class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                           placeholder="Choose a username">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Email</label>
+                                    <input type="email" id="signup-email" required
+                                           class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                           placeholder="your.email@example.com">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">School</label>
+                                    <input type="text" id="signup-school"
+                                           class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                           placeholder="Your school (optional)">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Password</label>
+                                    <div class="relative">
+                                        <input type="password" id="signup-password" required
+                                               class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent pr-12"
+                                               placeholder="Create a strong password"
+                                               oninput="checkPasswordStrength(this.value)">
+                                        <button type="button" onclick="togglePassword('signup-password')" 
+                                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div id="password-strength" class="password-strength"></div>
+                                        <div id="password-feedback" class="text-xs mt-1"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Confirm Password</label>
+                                    <input type="password" id="signup-confirm-password" required
+                                           class="auth-input w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent"
+                                           placeholder="Confirm your password">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="terms" required class="mr-3">
+                                    <label for="terms" class="text-sm">
+                                        I agree to the <a href="#" class="underline" style="color: var(--sage-green);">Terms of Service</a> 
+                                        and <a href="#" class="underline" style="color: var(--sage-green);">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="auth-button w-full py-4 rounded-lg font-semibold text-white text-lg" style="background: var(--sage-green);">
+                                    <i class="fas fa-user-plus mr-2"></i>
+                                    Create Account
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-8 text-center">
+                            <p class="text-gray-600 mb-4">Already have an account?</p>
+                            <button onclick="showLogin()" class="w-full py-3 rounded-lg border-2 font-semibold" style="border-color: var(--dusty-blue); color: var(--dusty-blue);">
+                                Sign In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="glass-card rounded-2xl p-8 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sage-green mx-auto mb-4"></div>
+            <p class="text-lg font-semibold">Authenticating...</p>
+        </div>
+    </div>
+
+    <script>
+        // Authentication functions
+        function showSignup() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('signup-form').classList.remove('hidden');
+            
+            anime({
+                targets: '#signup-form',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                easing: 'easeOutQuad',
+                duration: 400
+            });
+        }
+        
+        function showLogin() {
+            document.getElementById('signup-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+            
+            anime({
+                targets: '#login-form',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                easing: 'easeOutQuad',
+                duration: 400
+            });
+        }
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('password-strength');
+            const feedback = document.getElementById('password-feedback');
+            
+            let strength = 0;
+            let feedbackText = [];
+            
+            // Length check
+            if (password.length >= 8) {
+                strength += 1;
+            } else {
+                feedbackText.push('At least 8 characters');
+            }
+            
+            // Uppercase check
+            if (/[A-Z]/.test(password)) {
+                strength += 1;
+            } else {
+                feedbackText.push('One uppercase letter');
+            }
+            
+            // Lowercase check
+            if (/[a-z]/.test(password)) {
+                strength += 1;
+            } else {
+                feedbackText.push('One lowercase letter');
+            }
+            
+            // Number check
+            if (/[0-9]/.test(password)) {
+                strength += 1;
+            } else {
+                feedbackText.push('One number');
+            }
+            
+            // Special character check
+            if (/[^A-Za-z0-9]/.test(password)) {
+                strength += 1;
+            } else {
+                feedbackText.push('One special character');
+            }
+            
+            // Update strength bar
+            strengthBar.className = 'password-strength';
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                feedback.textContent = 'Weak password - ' + feedbackText.join(', ');
+                feedback.className = 'text-xs mt-1 text-red-600';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('strength-medium');
+                feedback.textContent = 'Medium strength - ' + feedbackText.join(', ');
+                feedback.className = 'text-xs mt-1 text-yellow-600';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                feedback.textContent = 'Strong password ✓';
+                feedback.className = 'text-xs mt-1 text-green-600';
+            }
+        }
+        
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            document.getElementById('loading-overlay').classList.add('flex');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('loading-overlay').classList.remove('flex');
+        }
+        
+        // Login form submission
+        document.getElementById('login-form-element').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token and user data
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        });
+        
+        // Signup form submission
+        document.getElementById('signup-form-element').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('signup-firstname').value;
+            const lastName = document.getElementById('signup-lastname').value;
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const school = document.getElementById('signup-school').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 8) {
+                alert('Password must be at least 8 characters long');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName,
+                        lastName,
+                        username,
+                        email,
+                        school,
+                        password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token and user data
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        });
+        
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', function() {
+            anime({
+                targets: '.auth-container',
+                opacity: [0, 1],
+                translateY: [50, 0],
+                easing: 'easeOutQuad',
+                duration: 800
+            });
+            
+            anime({
+                targets: '.shape',
+                scale: [0, 1],
+                opacity: [0, 0.1],
+                easing: 'easeOutBack',
+                duration: 1000,
+                delay: anime.stagger(200)
+            });
+        });
+        
+        // Check if user is already logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+            // Verify token validity
+            fetch('/api/user/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = 'dashboard.html';
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            });
+        }
+    </script>
+</body>
+</html>

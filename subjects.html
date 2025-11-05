@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects - GCSE Prep Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage-green: #2D5A3D;
+            --warm-charcoal: #3A3A3A;
+            --soft-cream: #FAF9F6;
+            --muted-coral: #E8A598;
+            --dusty-blue: #7B9BB0;
+            --golden-yellow: #F4D03F;
+            --maths-teal: #2C7A7B;
+            --english-burgundy: #8B4B61;
+            --science-forest: #4A7C59;
+            --computerscience-indigo: #4F46E5;
+            --french-purple: #7B68A6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--soft-cream) 0%, #F5F3F0 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(rgba(45, 90, 61, 0.1), rgba(45, 90, 61, 0.2)), 
+                        url('resources/hero-subjects.jpg') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(250, 249, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 90, 61, 0.1);
+            box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+        }
+        
+        .subject-nav-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .subject-nav-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.15);
+        }
+        
+        .subject-nav-item.active {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(45, 90, 61, 0.2);
+        }
+        
+        .topic-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.1);
+        }
+        
+        .video-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(45, 90, 61, 0.15);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        
+        .video-thumbnail::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .video-thumbnail::after {
+            content: '▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 11;
+        }
+        
+        .flashcard {
+            perspective: 1000px;
+            height: 200px;
+        }
+        
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--sage-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .confidence-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #E5E7EB;
+            outline: none;
+        }
+        
+        .confidence-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--sage-green);
+            cursor: pointer;
+        }
+        
+        .confidence-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--sage-green);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .resource-item {
+            transition: all 0.2s ease;
+        }
+        
+        .resource-item:hover {
+            transform: translateX(4px);
+            background: rgba(45, 90, 61, 0.05);
+        }
+        
+        .wizard-step {
+            transition: all 0.3s ease;
+        }
+        
+        .wizard-step.active {
+            background: var(--sage-green);
+            color: white;
+        }
+        
+        .wizard-step.completed {
+            background: var(--dusty-blue);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-sage-green/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold" style="color: var(--sage-green);">
+                        📚 GCSE Prep Pro
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="dashboard.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Dashboard</a>
+                        <a href="subjects.html" class="nav-link text-gray-900 font-medium">Subjects</a>
+                        <a href="practice.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Practice</a>
+                        <a href="progress.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Progress</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <img id="user-avatar" src="resources/default-avatar.png" alt="User Avatar" 
+                         class="w-10 h-10 rounded-full border-2 border-yellow-400 cursor-pointer" onclick="window.location.href='dashboard.html#settings'">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 text-white">
+                    Subject
+                    <span style="color: var(--golden-yellow);">Resources</span>
+                </h1>
+                <p class="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto">
+                    Comprehensive study materials, video lessons, and interactive resources for every GCSE subject
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subject Navigation -->
+    <section class="py-12 bg-white/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div class="subject-nav-item glass-card rounded-xl p-4 text-center active" onclick="selectSubject('maths')" data-subject="maths">
+                    <div class="text-3xl mb-2">📊</div>
+                    <div class="font-semibold text-sm">Mathematics</div>
+                    <div class="text-xs text-gray-600 mt-1">75% Complete</div>
+                </div>
+                <div class="subject-nav-item glass-card rounded-xl p-4 text-center" onclick="selectSubject('english')" data-subject="english">
+                    <div class="text-3xl mb-2">📝</div>
+                    <div class="font-semibold text-sm">English Language</div>
+                    <div class="text-xs text-gray-600 mt-1">60% Complete</div>
+                </div>
+                <div class="subject-nav-item glass-card rounded-xl p-4 text-center" onclick="selectSubject('science')" data-subject="science">
+                    <div class="text-3xl mb-2">🔬</div>
+                    <div class="font-semibold text-sm">Combined Science</div>
+                    <div class="text-xs text-gray-600 mt-1">85% Complete</div>
+                </div>
+                <div class="subject-nav-item glass-card rounded-xl p-4 text-center" onclick="selectSubject('computerscience')" data-subject="computerscience">
+                    <div class="text-3xl mb-2">💻</div>
+                    <div class="font-semibold text-sm">Computer Science</div>
+                    <div class="text-xs text-gray-600 mt-1">65% Complete</div>
+                </div>
+                <div class="subject-nav-item glass-card rounded-xl p-4 text-center" onclick="selectSubject('french')" data-subject="french">
+                    <div class="text-3xl mb-2">🗣️</div>
+                    <div class="font-semibold text-sm">French</div>
+                    <div class="text-xs text-gray-600 mt-1">55% Complete</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Subject Content -->
+                <div class="lg:col-span-2">
+                    <!-- Mathematics Content -->
+                    <div id="maths-content" class="subject-content">
+                        <div class="glass-card rounded-2xl p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold" style="color: var(--maths-teal);">Mathematics</h2>
+                                <div class="text-sm text-gray-600">Grade 7 Target</div>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Subject Overview</h3>
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    Mathematics at GCSE level builds on your existing knowledge and introduces more advanced concepts. 
+                                    The course is divided into six main areas: Number, Algebra, Ratio and Proportion, Geometry and Measures, 
+                                    Probability, and Statistics. You'll develop problem-solving skills and learn to apply mathematical concepts 
+                                    to real-world situations.
+                                </p>
+                                <p class="text-gray-700 leading-relaxed">
+                                    The examination consists of three papers: one non-calculator and two calculator papers, each lasting 
+                                    1 hour 30 minutes. Success in mathematics requires consistent practice, understanding of fundamental 
+                                    concepts, and the ability to show clear working in your solutions.
+                                </p>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Key Topics</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('algebra')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Algebra</h4>
+                                                <p class="text-sm text-gray-600">Equations, graphs, sequences</p>
+                                            </div>
+                                            <div class="text-2xl">📈</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>80%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-teal-600 h-2 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('geometry')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Geometry</h4>
+                                                <p class="text-sm text-gray-600">Shapes, angles, trigonometry</p>
+                                            </div>
+                                            <div class="text-2xl">📐</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>65%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-teal-600 h-2 rounded-full" style="width: 65%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('statistics')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Statistics</h4>
+                                                <p class="text-sm text-gray-600">Data, probability, graphs</p>
+                                            </div>
+                                            <div class="text-2xl">📊</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>90%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-teal-600 h-2 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('number')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Number</h4>
+                                                <p class="text-sm text-gray-600">Fractions, decimals, percentages</p>
+                                            </div>
+                                            <div class="text-2xl">🔢</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>85%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-teal-600 h-2 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Lessons Section -->
+                        <div class="glass-card rounded-2xl p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-2xl font-bold" style="color: var(--maths-teal);">Video Lessons</h3>
+                                <button onclick="loadMoreVideos('maths')" class="px-4 py-2 rounded-lg font-semibold text-white" style="background: var(--maths-teal);">
+                                    View All
+                                </button>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="maths-videos">
+                                <!-- Videos will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Interactive Flashcards -->
+                        <div class="glass-card rounded-2xl p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-2xl font-bold" style="color: var(--sage-green);">Interactive Flashcards</h3>
+                                <button onclick="createFlashcards()" class="px-4 py-2 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                                    + New Deck
+                                </button>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6" id="maths-flashcards">
+                                <!-- Flashcards will be loaded here -->
+                            </div>
+                            
+                            <div class="text-center">
+                                <button onclick="window.location.href='practice.html'" class="px-6 py-3 rounded-lg font-semibold text-white" style="background: var(--muted-coral);">
+                                    Practice with Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other subject contents would be similar but hidden initially -->
+                    <div id="english-content" class="subject-content hidden">
+                        <div class="glass-card rounded-2xl p-8 mb-8">
+                            <h2 class="text-3xl font-bold mb-6" style="color: var(--english-burgundy);">English Language</h2>
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                English Language GCSE develops your skills in reading, writing, and communication. You'll analyze 
+                                fiction and non-fiction texts, develop creative writing techniques, and learn to communicate 
+                                effectively for different purposes and audiences.
+                            </p>
+                            <!-- Similar structure for other subjects -->
+                        </div>
+                    </div>
+
+                    <!-- Computer Science Content -->
+                    <div id="computerscience-content" class="subject-content hidden">
+                        <div class="glass-card rounded-2xl p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold" style="color: var(--computerscience-indigo);">Computer Science</h2>
+                                <div class="text-sm text-gray-600">Grade 6 Target</div>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Subject Overview</h3>
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    Computer Science GCSE introduces you to the fundamental principles of computing, programming, 
+                                    and computational thinking. You'll learn to write programs in Python, understand how computers 
+                                    work, explore networks and cybersecurity, and develop problem-solving skills.
+                                </p>
+                                <p class="text-gray-700 leading-relaxed">
+                                    The course combines practical programming with theoretical knowledge, preparing you for further 
+                                    study in computer science, software engineering, or related fields. Assessment includes practical 
+                                    programming tasks and written examinations.
+                                </p>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Key Topics</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('programming')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Programming</h4>
+                                                <p class="text-sm text-gray-600">Python, algorithms, data structures</p>
+                                            </div>
+                                            <div class="text-2xl">💻</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>70%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-indigo-600 h-2 rounded-full" style="width: 70%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('computersystems')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Computer Systems</h4>
+                                                <p class="text-sm text-gray-600">Hardware, software, networks</p>
+                                            </div>
+                                            <div class="text-2xl">🔧</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>60%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-indigo-600 h-2 rounded-full" style="width: 60%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('datarepresentation')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Data Representation</h4>
+                                                <p class="text-sm text-gray-600">Binary, hexadecimal, storage</p>
+                                            </div>
+                                            <div class="text-2xl">🔢</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>75%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-indigo-600 h-2 rounded-full" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('cybersecurity')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Cybersecurity</h4>
+                                                <p class="text-sm text-gray-600">Threats, protection, ethics</p>
+                                            </div>
+                                            <div class="text-2xl">🔒</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>55%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-indigo-600 h-2 rounded-full" style="width: 55%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- French Content -->
+                    <div id="french-content" class="subject-content hidden">
+                        <div class="glass-card rounded-2xl p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold" style="color: var(--french-purple);">French</h2>
+                                <div class="text-sm text-gray-600">Grade 6 Target</div>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Subject Overview</h3>
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    French GCSE develops your ability to communicate effectively in French, both in speaking and writing. 
+                                    You'll learn essential grammar, vocabulary, and cultural knowledge while developing skills in listening, 
+                                    speaking, reading, and writing.
+                                </p>
+                                <p class="text-gray-700 leading-relaxed">
+                                    The course covers themes such as identity and culture, local, national, international and global areas 
+                                    of interest, and current and future study and employment. Assessment includes exams in all four skills 
+                                    plus a speaking endorsement.
+                                </p>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Key Topics</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('grammar')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Grammar</h4>
+                                                <p class="text-sm text-gray-600">Tenses, conjugations, structures</p>
+                                            </div>
+                                            <div class="text-2xl">📚</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>50%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-purple-600 h-2 rounded-full" style="width: 50%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('vocabulary')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Vocabulary</h4>
+                                                <p class="text-sm text-gray-600">Words, phrases, expressions</p>
+                                            </div>
+                                            <div class="text-2xl">🗣️</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>65%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-purple-600 h-2 rounded-full" style="width: 65%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('speaking')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">Speaking</h4>
+                                                <p class="text-sm text-gray-600">Conversation, pronunciation</p>
+                                            </div>
+                                            <div class="text-2xl">🎤</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>45%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-purple-600 h-2 rounded-full" style="width: 45%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="topic-card glass-card rounded-lg p-4" onclick="openTopic('culture')">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-semibold">French Culture</h4>
+                                                <p class="text-sm text-gray-600">History, customs, society</p>
+                                            </div>
+                                            <div class="text-2xl">🗼</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span>Progress</span>
+                                                <span>40%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="progress-bar bg-purple-600 h-2 rounded-full" style="width: 40%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Study Resources -->
+                    <div class="glass-card rounded-2xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Study Resources</h3>
+                        <div class="space-y-3">
+                            <div class="resource-item p-3 rounded-lg cursor-pointer" onclick="openResource('video')">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🎥</div>
+                                    <div>
+                                        <div class="font-semibold">Video Tutorials</div>
+                                        <div class="text-sm text-gray-600">15 videos available</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="resource-item p-3 rounded-lg cursor-pointer" onclick="openResource('worksheet')">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">📄</div>
+                                    <div>
+                                        <div class="font-semibold">Practice Worksheets</div>
+                                        <div class="text-sm text-gray-600">23 worksheets</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="resource-item p-3 rounded-lg cursor-pointer" onclick="openResource('pastpapers')">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">📋</div>
+                                    <div>
+                                        <div class="font-semibold">Past Papers</div>
+                                        <div class="text-sm text-gray-600">5 years of papers</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="resource-item p-3 rounded-lg cursor-pointer" onclick="openResource('formula')">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">📊</div>
+                                    <div>
+                                        <div class="font-semibold">Formula Sheet</div>
+                                        <div class="text-sm text-gray-600">All key formulas</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="glass-card rounded-2xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Your Progress</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Overall Progress</span>
+                                    <span>75%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="progress-bar bg-teal-600 h-3 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Study Time This Week</span>
+                                    <span>8.5 hours</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="progress-bar bg-sage-green h-3 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Quiz Accuracy</span>
+                                    <span>82%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="progress-bar bg-muted-coral h-3 rounded-full" style="width: 82%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Study Tips -->
+                    <div class="glass-card rounded-2xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Study Tips</h3>
+                        <div class="space-y-4 text-sm">
+                            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <div class="font-semibold text-blue-800 mb-1">💡 Practice Regularly</div>
+                                <div class="text-blue-700">Solve 5-10 problems daily to build muscle memory</div>
+                            </div>
+                            
+                            <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                                <div class="font-semibold text-green-800 mb-1">🎯 Show Your Work</div>
+                                <div class="text-green-700">Always write out your steps clearly for full marks</div>
+                            </div>
+                            
+                            <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div class="font-semibold text-yellow-800 mb-1">📚 Use Past Papers</div>
+                                <div class="text-yellow-700">Practice with real exam questions under timed conditions</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wizard Learning Path -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Learning Path</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="wizard-step active p-3 rounded-lg border-2 border-sage-green">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-sage-green text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">1</div>
+                                    <div>
+                                        <div class="font-semibold">Foundation Concepts</div>
+                                        <div class="text-sm opacity-75">Basic algebra skills</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="wizard-step p-3 rounded-lg border-2 border-gray-200">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">2</div>
+                                    <div>
+                                        <div class="font-semibold">Equations & Formulas</div>
+                                        <div class="text-sm opacity-75">Linear and quadratic equations</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="wizard-step p-3 rounded-lg border-2 border-gray-200">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">3</div>
+                                    <div>
+                                        <div class="font-semibold">Advanced Problem Solving</div>
+                                        <div class="text-sm opacity-75">Complex applications</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="startWizardPath()" class="w-full mt-4 py-2 px-4 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                            Continue Learning Path
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-2xl font-bold mb-4" style="color: var(--sage-green);">📚 GCSE Prep Pro</div>
+            <p class="text-gray-400 mb-6">Your complete companion for GCSE success</p>
+            <div class="text-sm text-gray-500">
+                © 2024 GCSE Prep Pro. Designed for academic excellence.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Video Player Modal -->
+    <div id="video-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="glass-card rounded-2xl p-8 max-w-4xl w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 id="video-title" class="text-2xl font-bold">Video Title</h3>
+                <button onclick="closeVideoModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="aspect-video bg-black rounded-lg mb-6 flex items-center justify-center">
+                <div class="text-center text-white">
+                    <i class="fas fa-play-circle text-6xl mb-4"></i>
+                    <p>Video player would be integrated here</p>
+                    <p class="text-sm opacity-75">Click to play lesson</p>
+                </div>
+            </div>
+            
+            <div id="video-description" class="text-gray-700 mb-6">
+                Video description will appear here
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="markVideoWatched()" class="flex-1 py-3 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                    <i class="fas fa-check mr-2"></i>Mark as Watched
+                </button>
+                <button onclick="addToStudyList()" class="flex-1 py-3 rounded-lg border-2 font-semibold" style="border-color: var(--dusty-blue); color: var(--dusty-blue);">
+                    <i class="fas fa-bookmark mr-2"></i>Save for Later
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="subjects.js"></script>
+</body>
+</html>

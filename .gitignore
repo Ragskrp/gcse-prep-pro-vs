@@ -1,0 +1,6 @@
+# Local Netlify folder
+.netlify
+node_modules
+
+# Service Account Key - DO NOT COMMIT THIS FILE
+serviceAccountKey.json

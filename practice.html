@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice - GCSE Prep Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage-green: #2D5A3D;
+            --warm-charcoal: #3A3A3A;
+            --soft-cream: #FAF9F6;
+            --muted-coral: #E8A598;
+            --dusty-blue: #7B9BB0;
+            --golden-yellow: #F4D03F;
+            --maths-teal: #2C7A7B;
+            --english-burgundy: #8B4B61;
+            --science-forest: #4A7C59;
+            --history-amber: #B8860B;
+            --geography-ocean: #4682B4;
+            --languages-purple: #7B68A6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--soft-cream) 0%, #F5F3F0 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(rgba(45, 90, 61, 0.1), rgba(45, 90, 61, 0.2)), 
+                        url('resources/hero-practice.jpg') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(250, 249, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 90, 61, 0.1);
+            box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(45, 90, 61, 0.1);
+        }
+        
+        .quiz-option.correct {
+            background: #10B981 !important;
+            color: white !important;
+            border-color: #10B981 !important;
+        }
+        
+        .quiz-option.incorrect {
+            background: #EF4444 !important;
+            color: white !important;
+            border-color: #EF4444 !important;
+        }
+        
+        .quiz-option.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .timer-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .difficulty-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .difficulty-foundation {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .difficulty-higher {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--sage-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .progress-ring {
+            transition: stroke-dasharray 0.5s ease-in-out;
+        }
+        
+        .quiz-mode-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-mode-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(45, 90, 61, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-sage-green/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold" style="color: var(--sage-green);">
+                        📚 GCSE Prep Pro
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Dashboard</a>
+                        <a href="subjects.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Subjects</a>
+                        <a href="practice.html" class="nav-link text-gray-900 font-medium">Practice</a>
+                        <a href="progress.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Progress</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-gray-900">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 text-white">
+                    Practice
+                    <span style="color: var(--golden-yellow);">Quizzes</span>
+                </h1>
+                <p class="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto">
+                    Test your knowledge with interactive quizzes, past papers, and exam simulations
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz Configuration -->
+    <section class="py-12" id="quiz-config">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-6" style="color: var(--sage-green);">Choose Your Quiz</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Select your subject, topic, and difficulty level to start practicing
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Quick Quiz -->
+                <div class="quiz-mode-card glass-card rounded-2xl p-8" onclick="startQuickQuiz()">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">⚡</div>
+                        <h3 class="text-2xl font-bold mb-4" style="color: var(--sage-green);">Quick Quiz</h3>
+                        <p class="text-gray-600 mb-6">
+                            10 questions in 15 minutes. Perfect for daily practice and quick revision sessions.
+                        </p>
+                        <div class="flex justify-center gap-2 mb-4">
+                            <span class="difficulty-badge difficulty-foundation">Foundation</span>
+                            <span class="difficulty-badge difficulty-higher">Higher</span>
+                        </div>
+                        <button class="w-full py-3 px-6 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                            Start Quick Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Topic Focus -->
+                <div class="quiz-mode-card glass-card rounded-2xl p-8" onclick="showTopicSelector()">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">🎯</div>
+                        <h3 class="text-2xl font-bold mb-4" style="color: var(--dusty-blue);">Topic Focus</h3>
+                        <p class="text-gray-600 mb-6">
+                            Deep dive into specific topics with targeted questions and explanations.
+                        </p>
+                        <div class="flex justify-center gap-2 mb-4">
+                            <span class="difficulty-badge difficulty-foundation">Foundation</span>
+                            <span class="difficulty-badge difficulty-higher">Higher</span>
+                        </div>
+                        <button class="w-full py-3 px-6 rounded-lg font-semibold text-white" style="background: var(--dusty-blue);">
+                            Choose Topic
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Past Paper Simulator -->
+                <div class="quiz-mode-card glass-card rounded-2xl p-8" onclick="startPastPaper()">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">📋</div>
+                        <h3 class="text-2xl font-bold mb-4" style="color: var(--muted-coral);">Past Paper</h3>
+                        <p class="text-gray-600 mb-6">
+                            Real exam experience with actual past questions and timed conditions.
+                        </p>
+                        <div class="flex justify-center gap-2 mb-4">
+                            <span class="difficulty-badge difficulty-foundation">Foundation</span>
+                            <span class="difficulty-badge difficulty-higher">Higher</span>
+                        </div>
+                        <button class="w-full py-3 px-6 rounded-lg font-semibold text-white" style="background: var(--muted-coral);">
+                            Start Exam
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject & Topic Selector (Hidden initially) -->
+            <div id="topic-selector" class="glass-card rounded-2xl p-8 hidden">
+                <h3 class="text-2xl font-bold mb-6" style="color: var(--sage-green);">Select Subject & Topic</h3>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-sm font-semibold mb-3">Subject</label>
+                        <div class="space-y-3">
+                            <div class="subject-option p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-sage-green" onclick="selectSubject('maths')" data-subject="maths">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">📊</div>
+                                    <div>
+                                        <div class="font-semibold">Mathematics</div>
+                                        <div class="text-sm text-gray-600">Algebra, Geometry, Statistics</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-option p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-sage-green" onclick="selectSubject('english')" data-subject="english">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">📝</div>
+                                    <div>
+                                        <div class="font-semibold">English Language</div>
+                                        <div class="text-sm text-gray-600">Reading, Writing, Analysis</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-option p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-sage-green" onclick="selectSubject('science')" data-subject="science">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🔬</div>
+                                    <div>
+                                        <div class="font-semibold">Combined Science</div>
+                                        <div class="text-sm text-gray-600">Biology, Chemistry, Physics</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-option p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-sage-green" onclick="selectSubject('computerscience')" data-subject="computerscience">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">💻</div>
+                                    <div>
+                                        <div class="font-semibold">Computer Science</div>
+                                        <div class="text-sm text-gray-600">Programming, Algorithms</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-option p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-sage-green" onclick="selectSubject('french')" data-subject="french">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🗣️</div>
+                                    <div>
+                                        <div class="font-semibold">French</div>
+                                        <div class="text-sm text-gray-600">Grammar, Vocabulary</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold mb-3">Topic</label>
+                        <div id="topic-options" class="space-y-3">
+                            <div class="text-gray-500 text-center py-8">
+                                Select a subject to see available topics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex justify-between">
+                    <button onclick="hideTopicSelector()" class="px-6 py-3 rounded-lg border-2 font-semibold" style="border-color: var(--sage-green); color: var(--sage-green);">
+                        Back
+                    </button>
+                    <button onclick="startTopicQuiz()" id="start-topic-quiz" class="px-6 py-3 rounded-lg font-semibold text-white opacity-50 cursor-not-allowed" style="background: var(--sage-green);" disabled>
+                        Start Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz Interface (Hidden initially) -->
+    <section id="quiz-interface" class="py-12 hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Quiz Header -->
+            <div class="glass-card rounded-2xl p-6 mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold" style="color: var(--sage-green);" id="quiz-title">Mathematics Quiz</h3>
+                        <p class="text-gray-600" id="quiz-subtitle">Foundation Level • Algebra</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <!-- Timer -->
+                        <div class="text-center">
+                            <div class="relative w-16 h-16">
+                                <svg class="w-16 h-16">
+                                    <circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="4" fill="none"/>
+                                    <circle cx="32" cy="32" r="28" stroke="var(--sage-green)" stroke-width="4" fill="none" 
+                                            class="timer-circle" id="timer-circle"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-sm font-bold" id="timer-text">15:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress -->
+                        <div class="text-center">
+                            <div class="relative w-16 h-16">
+                                <svg class="w-16 h-16 transform -rotate-90">
+                                    <circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="4" fill="none"/>
+                                    <circle cx="32" cy="32" r="28" stroke="var(--dusty-blue)" stroke-width="4" fill="none" 
+                                            class="progress-ring" id="progress-ring" stroke-dasharray="0 176"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-sm font-bold" id="progress-text">0/10</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Score -->
+                        <div class="text-center">
+                            <div class="text-2xl font-bold" style="color: var(--muted-coral);" id="score-display">0</div>
+                            <div class="text-sm text-gray-600">Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Question Card -->
+            <div id="quiz-container">
+                <!-- Questions will be loaded here by JavaScript -->
+                <div class="glass-card rounded-2xl p-8 text-center">
+                    <div class="text-6xl mb-4">🎯</div>
+                    <h3 class="text-2xl font-bold mb-4">Ready to Start?</h3>
+                    <p class="text-gray-600 mb-6">Click the button below to begin your quiz</p>
+                    <button onclick="initializeQuiz()" class="px-8 py-4 rounded-lg font-semibold text-white text-lg" style="background: var(--sage-green);">
+                        Start Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section (Hidden initially) -->
+    <section id="quiz-results" class="py-12 hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-card rounded-2xl p-8 text-center">
+                <div id="results-content">
+                    <!-- Results will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Practice Stats -->
+    <section class="py-12 bg-white/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-6" style="color: var(--sage-green);">Your Practice Stats</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold mb-2" style="color: var(--sage-green);" id="total-quizzes">24</div>
+                    <div class="text-gray-600">Quizzes Completed</div>
+                    <div class="text-sm text-gray-500 mt-2">This month</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold mb-2" style="color: var(--dusty-blue);" id="average-score">78%</div>
+                    <div class="text-gray-600">Average Score</div>
+                    <div class="text-sm text-gray-500 mt-2">Last 10 quizzes</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold mb-2" style="color: var(--muted-coral);" id="study-streak">12</div>
+                    <div class="text-gray-600">Day Streak</div>
+                    <div class="text-sm text-gray-500 mt-2">Keep it up!</div>
+                </div>
+            </div>
+            
+            <div class="mt-12">
+                <div class="glass-card rounded-2xl p-8">
+                    <h3 class="text-2xl font-bold mb-6" style="color: var(--sage-green);">Performance by Subject</h3>
+                    <div id="performance-chart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-2xl font-bold mb-4" style="color: var(--sage-green);">📚 GCSE Prep Pro</div>
+            <p class="text-gray-400 mb-6">Your complete companion for GCSE success</p>
+            <div class="text-sm text-gray-500">
+                © 2024 GCSE Prep Pro. Designed for academic excellence.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Quiz state management
+        let currentQuiz = {
+            subject: null,
+            topic: null,
+            difficulty: 'foundation',
+            questions: [],
+            currentQuestion: 0,
+            score: 0,
+            timeSpent: 0,
+            timer: null,
+            isActive: false
+        };
+        
+        // Topic database
+        const topicsBySubject = {
+            maths: [
+                { id: 'algebra', name: 'Algebra', description: 'Equations, graphs, sequences' },
+                { id: 'geometry', name: 'Geometry', description: 'Shapes, angles, trigonometry' },
+                { id: 'statistics', name: 'Statistics', description: 'Data, probability, graphs' },
+                { id: 'number', name: 'Number', description: 'Fractions, decimals, percentages' }
+            ],
+            english: [
+                { id: 'creative-writing', name: 'Creative Writing', description: 'Stories, descriptions, narratives' },
+                { id: 'reading', name: 'Reading Comprehension', description: 'Text analysis, inference' },
+                { id: 'language', name: 'Language Techniques', description: 'Grammar, structure, style' }
+            ],
+            science: [
+                { id: 'biology', name: 'Biology', description: 'Cells, organisms, ecosystems' },
+                { id: 'chemistry', name: 'Chemistry', description: 'Atoms, reactions, materials' },
+                { id: 'physics', name: 'Physics', description: 'Forces, energy, waves' }
+            ],
+            computerscience: [
+                { id: 'programming', name: 'Programming', description: 'Python, algorithms, data structures' },
+                { id: 'computersystems', name: 'Computer Systems', description: 'Hardware, software, networks' },
+                { id: 'datarepresentation', name: 'Data Representation', description: 'Binary, hexadecimal, storage' }
+            ],
+            french: [
+                { id: 'grammar', name: 'Grammar', description: 'Tenses, conjugations, structures' },
+                { id: 'vocabulary', name: 'Vocabulary', description: 'Words, phrases, expressions' },
+                { id: 'speaking', name: 'Speaking', description: 'Conversation, pronunciation' }
+            ]
+        };
+        
+        // Quiz mode functions
+        function startQuickQuiz() {
+            currentQuiz.subject = 'maths';
+            currentQuiz.topic = 'algebra';
+            currentQuiz.difficulty = 'foundation';
+            showQuizInterface();
+        }
+        
+        function showTopicSelector() {
+            document.getElementById('topic-selector').classList.remove('hidden');
+            anime({
+                targets: '#topic-selector',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                easing: 'easeOutQuad',
+                duration: 400
+            });
+        }
+        
+        function hideTopicSelector() {
+            anime({
+                targets: '#topic-selector',
+                opacity: [1, 0],
+                translateY: [0, -30],
+                easing: 'easeInQuad',
+                duration: 300,
+                complete: () => {
+                    document.getElementById('topic-selector').classList.add('hidden');
+                }
+            });
+        }
+        
+        function selectSubject(subject) {
+            currentQuiz.subject = subject;
+            
+            // Update UI
+            document.querySelectorAll('.subject-option').forEach(option => {
+                option.classList.remove('border-sage-green', 'bg-sage-green/5');
+                option.classList.add('border-gray-200');
+            });
+            document.querySelector(`[data-subject="${subject}"]`).classList.add('border-sage-green', 'bg-sage-green/5');
+            
+            // Load topics
+            loadTopics(subject);
+            
+            // Reset topic selection
+            currentQuiz.topic = null;
+            updateStartButton();
+        }
+        
+        function loadTopics(subject) {
+            const topics = topicsBySubject[subject] || [];
+            const container = document.getElementById('topic-options');
+            
+            if (topics.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center py-4">No topics available for this subject</div>';
+                return;
+            }
+            
+            container.innerHTML = topics.map(topic => `
+                <div class="topic-option p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-sage-green" 
+                     onclick="selectTopic('${topic.id}')" data-topic="${topic.id}">
+                    <div class="font-semibold">${topic.name}</div>
+                    <div class="text-sm text-gray-600">${topic.description}</div>
+                </div>
+            `).join('');
+        }
+        
+        function selectTopic(topic) {
+            currentQuiz.topic = topic;
+            
+            // Update UI
+            document.querySelectorAll('.topic-option').forEach(option => {
+                option.classList.remove('border-sage-green', 'bg-sage-green/5');
+                option.classList.add('border-gray-200');
+            });
+            document.querySelector(`[data-topic="${topic}"]`).classList.add('border-sage-green', 'bg-sage-green/5');
+            
+            updateStartButton();
+        }
+        
+        function updateStartButton() {
+            const button = document.getElementById('start-topic-quiz');
+            if (currentQuiz.subject && currentQuiz.topic) {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        function startTopicQuiz() {
+            if (currentQuiz.subject && currentQuiz.topic) {
+                hideTopicSelector();
+                showQuizInterface();
+            }
+        }
+        
+        function startPastPaper() {
+            currentQuiz.subject = 'maths';
+            currentQuiz.topic = 'mixed';
+            currentQuiz.difficulty = 'higher';
+            showQuizInterface();
+        }
+        
+        function showQuizInterface() {
+            document.getElementById('quiz-config').classList.add('hidden');
+            document.getElementById('quiz-interface').classList.remove('hidden');
+            
+            // Update quiz header
+            document.getElementById('quiz-title').textContent = `${currentQuiz.subject.charAt(0).toUpperCase() + currentQuiz.subject.slice(1)} Quiz`;
+            document.getElementById('quiz-subtitle').textContent = `${currentQuiz.difficulty.charAt(0).toUpperCase() + currentQuiz.difficulty.slice(1)} Level • ${currentQuiz.topic.charAt(0).toUpperCase() + currentQuiz.topic.slice(1)}`;
+            
+            // Animate interface appearance
+            anime({
+                targets: '#quiz-interface',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                easing: 'easeOutQuad',
+                duration: 400
+            });
+        }
+        
+        function initializeQuiz() {
+            // Load questions based on selection
+            loadQuestions();
+            displayQuestion();
+            startTimer();
+            currentQuiz.isActive = true;
+        }
+        
+        function loadQuestions() {
+            // Sample questions - in a real app, this would come from a database
+            const sampleQuestions = [
+                {
+                    question: "Solve for x: 2x + 5 = 13",
+                    options: ["x = 4", "x = 3", "x = 6", "x = 8"],
+                    correct: 0,
+                    explanation: "Subtract 5 from both sides: 2x = 8. Then divide by 2: x = 4"
+                },
+                {
+                    question: "What is the area of a rectangle with length 8cm and width 5cm?",
+                    options: ["40 cm²", "35 cm²", "45 cm²", "30 cm²"],
+                    correct: 0,
+                    explanation: "Area = length × width = 8 × 5 = 40 cm²"
+                },
+                {
+                    question: "Factorize: x² - 9",
+                    options: ["(x-3)(x+3)", "(x-3)²", "(x+3)²", "x² - 3"],
+                    correct: 0,
+                    explanation: "This is a difference of squares: x² - 9 = (x-3)(x+3)"
+                }
+            ];
+            
+            currentQuiz.questions = sampleQuestions;
+        }
+        
+        function displayQuestion() {
+            if (currentQuiz.currentQuestion >= currentQuiz.questions.length) {
+                finishQuiz();
+                return;
+            }
+            
+            const question = currentQuiz.questions[currentQuiz.currentQuestion];
+            const container = document.getElementById('quiz-container');
+            
+            container.innerHTML = `
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex-1">
+                            <div class="text-sm text-gray-600 mb-2">
+                                Question ${currentQuiz.currentQuestion + 1} of ${currentQuiz.questions.length}
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4">${question.question}</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        ${question.options.map((option, index) => `
+                            <button onclick="selectAnswer(${index})" 
+                                    class="quiz-option w-full p-4 text-left rounded-lg border-2 border-gray-200 hover:border-sage-green transition-all">
+                                <span class="font-semibold mr-3">${String.fromCharCode(65 + index)}.</span>
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <button onclick="previousQuestion()" 
+                                class="px-6 py-3 rounded-lg border-2 font-semibold ${currentQuiz.currentQuestion === 0 ? 'opacity-50 cursor-not-allowed' : ''}" 
+                                style="border-color: var(--dusty-blue); color: var(--dusty-blue);"
+                                ${currentQuiz.currentQuestion === 0 ? 'disabled' : ''}>
+                            Previous
+                        </button>
+                        
+                        <div class="text-sm text-gray-600">
+                            Time: <span id="question-timer">0:00</span>
+                        </div>
+                        
+                        <button onclick="nextQuestion()" id="next-button" class="px-6 py-3 rounded-lg font-semibold text-white opacity-50 cursor-not-allowed" style="background: var(--sage-green);" disabled>
+                            ${currentQuiz.currentQuestion === currentQuiz.questions.length - 1 ? 'Finish' : 'Next'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            updateProgress();
+        }
+        
+        function selectAnswer(selectedIndex) {
+            const question = currentQuiz.questions[currentQuiz.currentQuestion];
+            const isCorrect = selectedIndex === question.correct;
+            
+            // Update score
+            if (isCorrect) {
+                currentQuiz.score++;
+            }
+            
+            // Update UI
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons.forEach((button, index) => {
+                button.classList.add('disabled');
+                button.disabled = true;
+                
+                if (index === question.correct) {
+                    button.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    button.classList.add('incorrect');
+                }
+            });
+            
+            // Enable next button
+            const nextButton = document.getElementById('next-button');
+            nextButton.disabled = false;
+            nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            // Show explanation
+            showExplanation(question.explanation);
+        }
+        
+        function showExplanation(explanation) {
+            const container = document.getElementById('quiz-container');
+            const explanationDiv = document.createElement('div');
+            explanationDiv.className = 'mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200';
+            explanationDiv.innerHTML = `
+                <div class="font-semibold text-blue-800 mb-2">💡 Explanation:</div>
+                <div class="text-blue-700">${explanation}</div>
+            `;
+            
+            container.querySelector('.glass-card').appendChild(explanationDiv);
+        }
+        
+        function nextQuestion() {
+            currentQuiz.currentQuestion++;
+            displayQuestion();
+        }
+        
+        function previousQuestion() {
+            if (currentQuiz.currentQuestion > 0) {
+                currentQuiz.currentQuestion--;
+                displayQuestion();
+            }
+        }
+        
+        function updateProgress() {
+            const progress = (currentQuiz.currentQuestion / currentQuiz.questions.length) * 100;
+            const progressRing = document.getElementById('progress-ring');
+            const progressText = document.getElementById('progress-text');
+            const scoreDisplay = document.getElementById('score-display');
+            
+            if (progressRing) {
+                const circumference = 2 * Math.PI * 28;
+                const offset = circumference - (progress / 100) * circumference;
+                progressRing.style.strokeDasharray = `${circumference} ${circumference}`;
+                progressRing.style.strokeDashoffset = offset;
+            }
+            
+            if (progressText) {
+                progressText.textContent = `${currentQuiz.currentQuestion}/${currentQuiz.questions.length}`;
+            }
+            
+            if (scoreDisplay) {
+                scoreDisplay.textContent = currentQuiz.score;
+            }
+        }
+        
+        function startTimer() {
+            currentQuiz.timeSpent = 0;
+            const totalTime = 15 * 60; // 15 minutes in seconds
+            
+            currentQuiz.timer = setInterval(() => {
+                currentQuiz.timeSpent++;
+                
+                const remainingTime = totalTime - currentQuiz.timeSpent;
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                
+                const timerText = document.getElementById('timer-text');
+                if (timerText) {
+                    timerText.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                // Update timer circle
+                const progress = (currentQuiz.timeSpent / totalTime) * 100;
+                const timerCircle = document.getElementById('timer-circle');
+                if (timerCircle) {
+                    const circumference = 2 * Math.PI * 28;
+                    const offset = circumference - (progress / 100) * circumference;
+                    timerCircle.style.strokeDashoffset = offset;
+                }
+                
+                // Check if time is up
+                if (remainingTime <= 0) {
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+        
+        function finishQuiz() {
+            clearInterval(currentQuiz.timer);
+            currentQuiz.isActive = false;
+            
+            // Hide quiz interface
+            document.getElementById('quiz-interface').classList.add('hidden');
+            
+            // Show results
+            showResults();
+        }
+        
+        function showResults() {
+            const percentage = Math.round((currentQuiz.score / currentQuiz.questions.length) * 100);
+            const resultsContent = document.getElementById('results-content');
+            
+            let grade = 'U';
+            if (percentage >= 90) grade = '9';
+            else if (percentage >= 80) grade = '8';
+            else if (percentage >= 70) grade = '7';
+            else if (percentage >= 60) grade = '6';
+            else if (percentage >= 50) grade = '5';
+            else if (percentage >= 45) grade = '4';
+            else if (percentage >= 40) grade = '3';
+            else if (percentage >= 30) grade = '2';
+            else if (percentage >= 20) grade = '1';
+            
+            const emoji = percentage >= 70 ? '🎉' : percentage >= 50 ? '👍' : '📚';
+            const message = percentage >= 70 ? 'Excellent work!' : percentage >= 50 ? 'Good effort!' : 'Keep practicing!';
+            
+            resultsContent.innerHTML = `
+                <div class="text-6xl mb-4">${emoji}</div>
+                <h3 class="text-3xl font-bold mb-4">${message}</h3>
+                <div class="text-2xl mb-6">
+                    You scored <span class="font-bold" style="color: var(--sage-green);">${currentQuiz.score}/${currentQuiz.questions.length}</span> 
+                    (${percentage}%)
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2" style="color: var(--sage-green);">${percentage}%</div>
+                        <div class="text-sm text-gray-600">Accuracy</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2" style="color: var(--dusty-blue);">${grade}</div>
+                        <div class="text-sm text-gray-600">Predicted Grade</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold mb-2" style="color: var(--muted-coral);">${Math.floor(currentQuiz.timeSpent / 60)}:${(currentQuiz.timeSpent % 60).toString().padStart(2, '0')}</div>
+                        <div class="text-sm text-gray-600">Time Taken</div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="restartQuiz()" class="px-8 py-3 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                        Try Again
+                    </button>
+                    <button onclick="showQuizConfig()" class="px-8 py-3 rounded-lg border-2 font-semibold" style="border-color: var(--dusty-blue); color: var(--dusty-blue);">
+                        New Quiz
+                    </button>
+                    <button onclick="window.location.href='progress.html'" class="px-8 py-3 rounded-lg border-2 font-semibold" style="border-color: var(--muted-coral); color: var(--muted-coral);">
+                        View Progress
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('quiz-results').classList.remove('hidden');
+            
+            // Save quiz result
+            saveQuizResult({
+                date: new Date().toISOString(),
+                subject: currentQuiz.subject,
+                topic: currentQuiz.topic,
+                difficulty: currentQuiz.difficulty,
+                score: percentage,
+                correctAnswers: currentQuiz.score,
+                totalQuestions: currentQuiz.questions.length,
+                timeSpent: currentQuiz.timeSpent
+            });
+            
+            // Animate results
+            anime({
+                targets: '#quiz-results',
+                opacity: [0, 1],
+                translateY: [30, 0],
+                easing: 'easeOutQuad',
+                duration: 400
+            });
+        }
+        
+        function restartQuiz() {
+            // Reset quiz state
+            currentQuiz.currentQuestion = 0;
+            currentQuiz.score = 0;
+            currentQuiz.timeSpent = 0;
+            
+            // Hide results
+            document.getElementById('quiz-results').classList.add('hidden');
+            
+            // Show quiz interface
+            showQuizInterface();
+        }
+        
+        function showQuizConfig() {
+            // Hide results and interface
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-interface').classList.add('hidden');
+            
+            // Show config
+            document.getElementById('quiz-config').classList.remove('hidden');
+            
+            // Reset state
+            currentQuiz = {
+                subject: null,
+                topic: null,
+                difficulty: 'foundation',
+                questions: [],
+                currentQuestion: 0,
+                score: 0,
+                timeSpent: 0,
+                timer: null,
+                isActive: false
+            };
+        }
+        
+        function saveQuizResult(result) {
+            const results = JSON.parse(localStorage.getItem('quizResults')) || [];
+            results.push(result);
+            localStorage.setItem('quizResults', JSON.stringify(results));
+        }
+        
+        // Initialize performance chart
+        function initializePerformanceChart() {
+            const chartElement = document.getElementById('performance-chart');
+            if (!chartElement) return;
+            
+            const chart = echarts.init(chartElement);
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Mathematics', 'English', 'Science', 'History', 'Geography', 'Languages'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2D5A3D'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    max: 100,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2D5A3D'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Average Score',
+                    type: 'bar',
+                    data: [78, 65, 82, 58, 71, 63],
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#2D5A3D' },
+                            { offset: 1, color: '#7B9BB0' }
+                        ])
+                    },
+                    barWidth: '60%'
+                }]
+            };
+            
+            chart.setOption(option);
+            
+            // Make chart responsive
+            window.addEventListener('resize', () => {
+                chart.resize();
+            });
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePerformanceChart();
+            
+            // Animate elements on load
+            anime({
+                targets: '.quiz-mode-card',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                easing: 'easeOutQuad',
+                duration: 600,
+                delay: anime.stagger(200)
+            });
+        });
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>

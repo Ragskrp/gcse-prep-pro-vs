@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress - GCSE Prep Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage-green: #2D5A3D;
+            --warm-charcoal: #3A3A3A;
+            --soft-cream: #FAF9F6;
+            --muted-coral: #E8A598;
+            --dusty-blue: #7B9BB0;
+            --golden-yellow: #F4D03F;
+            --maths-teal: #2C7A7B;
+            --english-burgundy: #8B4B61;
+            --science-forest: #4A7C59;
+            --history-amber: #B8860B;
+            --geography-ocean: #4682B4;
+            --languages-purple: #7B68A6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--soft-cream) 0%, #F5F3F0 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(rgba(45, 90, 61, 0.1), rgba(45, 90, 61, 0.2)), 
+                        url('resources/hero-progress.jpg') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(250, 249, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 90, 61, 0.1);
+            box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+        }
+        
+        .progress-ring {
+            transition: stroke-dasharray 0.5s ease-in-out;
+        }
+        
+        .achievement-badge {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        .achievement-badge.unlocked {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .grade-prediction {
+            background: linear-gradient(135deg, var(--sage-green), var(--dusty-blue));
+            color: white;
+        }
+        
+        .study-streak {
+            background: linear-gradient(135deg, var(--golden-yellow), #F59E0B);
+            color: white;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--sage-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .goal-card {
+            transition: all 0.3s ease;
+        }
+        
+        .goal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.1);
+        }
+        
+        .confidence-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #E5E7EB;
+            outline: none;
+        }
+        
+        .confidence-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--sage-green);
+            cursor: pointer;
+        }
+        
+        .confidence-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--sage-green);
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-sage-green/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold" style="color: var(--sage-green);">
+                        📚 GCSE Prep Pro
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Dashboard</a>
+                        <a href="subjects.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Subjects</a>
+                        <a href="practice.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Practice</a>
+                        <a href="progress.html" class="nav-link text-gray-900 font-medium">Progress</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-gray-900">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-5xl lg:text-6xl font-bold mb-6 text-white">
+                    Your
+                    <span style="color: var(--golden-yellow);">Progress</span>
+                </h1>
+                <p class="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto">
+                    Track your achievements, monitor your improvement, and stay motivated on your GCSE journey
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Stats -->
+    <section class="py-12 bg-white/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="glass-card rounded-2xl p-6 text-center grade-prediction">
+                    <div class="text-4xl font-bold mb-2" id="overall-grade">7.2</div>
+                    <div class="text-lg font-semibold mb-1">Overall Grade</div>
+                    <div class="text-sm opacity-90">Predicted Average</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 text-center study-streak">
+                    <div class="text-4xl font-bold mb-2" id="current-streak">12</div>
+                    <div class="text-lg font-semibold mb-1">Day Streak</div>
+                    <div class="text-sm opacity-90">Study Consistency</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 text-center" style="background: linear-gradient(135deg, var(--muted-coral), #DC2626); color: white;">
+                    <div class="text-4xl font-bold mb-2" id="total-hours">156</div>
+                    <div class="text-lg font-semibold mb-1">Hours Studied</div>
+                    <div class="text-sm opacity-90">Total This Year</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 text-center" style="background: linear-gradient(135deg, var(--dusty-blue), #2563EB); color: white;">
+                    <div class="text-4xl font-bold mb-2" id="quiz-accuracy">82%</div>
+                    <div class="text-lg font-semibold mb-1">Quiz Accuracy</div>
+                    <div class="text-sm opacity-90">Last 30 Days</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Progress Tracking -->
+                <div class="lg:col-span-2">
+                    <!-- Subject Progress -->
+                    <div class="glass-card rounded-2xl p-8 mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold" style="color: var(--sage-green);">Subject Progress</h2>
+                            <button onclick="updateAllProgress()" class="px-4 py-2 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                                Update Progress
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Mathematics -->
+                            <div class="subject-progress-item">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center">
+                                        <div class="text-2xl mr-3">📊</div>
+                                        <div>
+                                            <div class="font-semibold">Mathematics</div>
+                                            <div class="text-sm text-gray-600">Grade 7 • 75% Complete</div>
+                                        </div>
+                                    </div>
+                                    <div class="relative w-16 h-16">
+                                        <svg class="w-16 h-16 transform -rotate-90">
+                                            <circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="4" fill="none"/>
+                                            <circle cx="32" cy="32" r="28" stroke="var(--maths-teal)" stroke-width="4" fill="none" 
+                                                    class="progress-ring" stroke-dasharray="165 176" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">75%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium mb-2">Confidence Level</label>
+                                    <input type="range" min="1" max="5" value="4" class="confidence-slider w-full" 
+                                           onchange="updateConfidence('maths', this.value)" data-subject="maths">
+                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>Low</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                    Next: Quadratic Equations • Last studied: 2 days ago
+                                </div>
+                            </div>
+
+                            <!-- English Language -->
+                            <div class="subject-progress-item">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center">
+                                        <div class="text-2xl mr-3">📝</div>
+                                        <div>
+                                            <div class="font-semibold">English Language</div>
+                                            <div class="text-sm text-gray-600">Grade 6 • 60% Complete</div>
+                                        </div>
+                                    </div>
+                                    <div class="relative w-16 h-16">
+                                        <svg class="w-16 h-16 transform -rotate-90">
+                                            <circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="4" fill="none"/>
+                                            <circle cx="32" cy="32" r="28" stroke="var(--english-burgundy)" stroke-width="4" fill="none" 
+                                                    class="progress-ring" stroke-dasharray="132 176" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">60%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium mb-2">Confidence Level</label>
+                                    <input type="range" min="1" max="5" value="3" class="confidence-slider w-full" 
+                                           onchange="updateConfidence('english', this.value)" data-subject="english">
+                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>Low</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                    Next: Descriptive Writing • Last studied: 1 day ago
+                                </div>
+                            </div>
+
+                            <!-- Combined Science -->
+                            <div class="subject-progress-item">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center">
+                                        <div class="text-2xl mr-3">🔬</div>
+                                        <div>
+                                            <div class="font-semibold">Combined Science</div>
+                                            <div class="text-sm text-gray-600">Grade 8 • 85% Complete</div>
+                                        </div>
+                                    </div>
+                                    <div class="relative w-16 h-16">
+                                        <svg class="w-16 h-16 transform -rotate-90">
+                                            <circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="4" fill="none"/>
+                                            <circle cx="32" cy="32" r="28" stroke="var(--science-forest)" stroke-width="4" fill="none" 
+                                                    class="progress-ring" stroke-dasharray="187 176" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">85%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium mb-2">Confidence Level</label>
+                                    <input type="range" min="1" max="5" value="5" class="confidence-slider w-full" 
+                                           onchange="updateConfidence('science', this.value)" data-subject="science">
+                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>Low</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                    Next: Chemical Reactions • Last studied: Today
+                                </div>
+                            </div>
+
+                            <!-- Computer Science -->
+                            <div class="subject-progress-item">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center">
+                                        <div class="text-2xl mr-3">💻</div>
+                                        <div>
+                                            <div class="font-semibold">Computer Science</div>
+                                            <div class="text-sm text-gray-600">Grade 6 • 65% Complete</div>
+                                        </div>
+                                    </div>
+                                    <div class="relative w-16 h-16">
+                                        <svg class="w-16 h-16 transform -rotate-90">
+                                            <circle cx="32" cy="32" r="28" stroke="#E5E7EB" stroke-width="4" fill="none"/>
+                                            <circle cx="32" cy="32" r="28" stroke="#4F46E5" stroke-width="4" fill="none" 
+                                                    class="progress-ring" stroke-dasharray="132 176" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">65%</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium mb-2">Confidence Level</label>
+                                    <input type="range" min="1" max="5" value="4" class="confidence-slider w-full" 
+                                           onchange="updateConfidence('computerscience', this.value)" data-subject="computerscience">
+                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>Low</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-600">
+                                    Next: Python Functions • Last studied: 1 day ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Study Analytics -->
+                    <div class="glass-card rounded-2xl p-8">
+                        <h3 class="text-2xl font-bold mb-6" style="color: var(--sage-green);">Study Analytics</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="text-lg font-semibold mb-4">Weekly Study Hours</h4>
+                                <div id="study-hours-chart" style="height: 250px;"></div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold mb-4">Grade Predictions</h4>
+                                <div id="grade-predictions-chart" style="height: 250px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Grade Calculator -->
+                    <div class="glass-card rounded-2xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Grade Calculator</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Mock Exam Score (%)</label>
+                                <input type="number" id="mock-score" placeholder="Enter your score" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Coursework (%)</label>
+                                <input type="number" id="coursework-score" placeholder="Enter coursework score" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                            </div>
+                            
+                            <button onclick="calculateGrade()" class="w-full py-3 px-4 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                                Calculate Grade
+                            </button>
+                            
+                            <div id="grade-result" class="hidden p-4 rounded-lg text-center text-white font-semibold">
+                                <!-- Result will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements -->
+                    <div class="glass-card rounded-2xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Achievements</h3>
+                        
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="achievement-badge unlocked glass-card rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">🏆</div>
+                                <div class="text-xs font-semibold">First Week</div>
+                            </div>
+                            
+                            <div class="achievement-badge unlocked glass-card rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📊</div>
+                                <div class="text-xs font-semibold">Math Master</div>
+                            </div>
+                            
+                            <div class="achievement-badge unlocked glass-card rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">🔥</div>
+                                <div class="text-xs font-semibold">7-Day Streak</div>
+                            </div>
+                            
+                            <div class="achievement-badge glass-card rounded-lg p-3 text-center opacity-50">
+                                <div class="text-2xl mb-1">🎯</div>
+                                <div class="text-xs font-semibold">Goal Setter</div>
+                            </div>
+                            
+                            <div class="achievement-badge glass-card rounded-lg p-3 text-center opacity-50">
+                                <div class="text-2xl mb-1">⚡</div>
+                                <div class="text-xs font-semibold">Lightning</div>
+                            </div>
+                            
+                            <div class="achievement-badge glass-card rounded-lg p-3 text-center opacity-50">
+                                <div class="text-2xl mb-1">🌟</div>
+                                <div class="text-xs font-semibold">All-Star</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <div class="text-sm text-gray-600">3 of 6 unlocked</div>
+                        </div>
+                    </div>
+
+                    <!-- Study Goals -->
+                    <div class="glass-card rounded-2xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Study Goals</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="goal-card p-4 rounded-lg border border-gray-200">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="font-semibold">Daily Study</div>
+                                    <div class="text-sm text-gray-600">7/7 days</div>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">Goal: 2 hours daily</div>
+                            </div>
+                            
+                            <div class="goal-card p-4 rounded-lg border border-gray-200">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="font-semibold">Weekly Quizzes</div>
+                                    <div class="text-sm text-gray-600">4/5 quizzes</div>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 80%"></div>
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">Goal: 5 quizzes per week</div>
+                            </div>
+                            
+                            <div class="goal-card p-4 rounded-lg border border-gray-200">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="font-semibold">Grade Improvement</div>
+                                    <div class="text-sm text-gray-600">+0.5 grades</div>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">Target: +0.7 grades this term</div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="setNewGoal()" class="w-full mt-4 py-2 px-4 rounded-lg border-2 border-dashed font-semibold" style="border-color: var(--sage-green); color: var(--sage-green);">
+                            + Set New Goal
+                        </button>
+                    </div>
+
+                    <!-- Study Recommendations -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Recommendations</h3>
+                        
+                        <div class="space-y-3 text-sm">
+                            <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                                <div class="font-semibold text-red-800 mb-1">🎯 Focus Area</div>
+                                <div class="text-red-700">Increase History study time to improve grade prediction</div>
+                            </div>
+                            
+                            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <div class="font-semibold text-blue-800 mb-1">💡 Study Tip</div>
+                                <div class="text-blue-700">Try 25-minute focused study sessions with 5-minute breaks</div>
+                            </div>
+                            
+                            <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                                <div class="font-semibold text-green-800 mb-1">🎉 Great Progress</div>
+                                <div class="text-green-700">Your Science grade has improved by 0.3 this month!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-2xl font-bold mb-4" style="color: var(--sage-green);">📚 GCSE Prep Pro</div>
+            <p class="text-gray-400 mb-6">Your complete companion for GCSE success</p>
+            <div class="text-sm text-gray-500">
+                © 2024 GCSE Prep Pro. Designed for academic excellence.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Progress tracking functions
+        function updateConfidence(subject, value) {
+            // In a real app, this would save to localStorage or send to server
+            console.log(`Updated ${subject} confidence to ${value}`);
+            
+            // Update grade prediction based on confidence
+            updateGradePrediction(subject, value);
+        }
+        
+        function updateGradePrediction(subject, confidence) {
+            // Simple grade prediction logic
+            const progressElements = {
+                maths: { progress: 75, baseGrade: 7 },
+                english: { progress: 60, baseGrade: 6 },
+                science: { progress: 85, baseGrade: 8 },
+                history: { progress: 45, baseGrade: 5 },
+                geography: { progress: 70, baseGrade: 7 },
+                languages: { progress: 55, baseGrade: 6 }
+            };
+            
+            const element = progressElements[subject];
+            if (element) {
+                const confidenceBonus = Math.min(2, Math.floor(confidence / 2));
+                const predictedGrade = Math.min(9, element.baseGrade + confidenceBonus);
+                
+                console.log(`Predicted grade for ${subject}: ${predictedGrade}`);
+            }
+        }
+        
+        function updateAllProgress() {
+            // In a real app, this would recalculate all progress based on recent activity
+            alert('Progress updated! Your latest quiz results and study sessions have been factored into your progress tracking.');
+        }
+        
+        function calculateGrade() {
+            const mockScore = parseFloat(document.getElementById('mock-score').value);
+            const courseworkScore = parseFloat(document.getElementById('coursework-score').value);
+            
+            if (isNaN(mockScore) || isNaN(courseworkScore)) {
+                alert('Please enter valid scores for both fields.');
+                return;
+            }
+            
+            if (mockScore < 0 || mockScore > 100 || courseworkScore < 0 || courseworkScore > 100) {
+                alert('Scores must be between 0 and 100.');
+                return;
+            }
+            
+            // Simple grade calculation (typically 70% exam, 30% coursework)
+            const overallScore = (mockScore * 0.7) + (courseworkScore * 0.3);
+            
+            let grade = 'U';
+            let gradeColor = '#EF4444';
+            
+            if (overallScore >= 90) {
+                grade = '9 (A*)';
+                gradeColor = '#10B981';
+            } else if (overallScore >= 80) {
+                grade = '8 (A*)';
+                gradeColor = '#10B981';
+            } else if (overallScore >= 70) {
+                grade = '7 (A)';
+                gradeColor = '#10B981';
+            } else if (overallScore >= 60) {
+                grade = '6 (B)';
+                gradeColor = '#F59E0B';
+            } else if (overallScore >= 50) {
+                grade = '5 (C/B)';
+                gradeColor = '#F59E0B';
+            } else if (overallScore >= 45) {
+                grade = '4 (C)';
+                gradeColor = '#F59E0B';
+            } else if (overallScore >= 40) {
+                grade = '3 (D)';
+                gradeColor = '#EF4444';
+            } else if (overallScore >= 30) {
+                grade = '2 (E)';
+                gradeColor = '#EF4444';
+            } else if (overallScore >= 20) {
+                grade = '1 (F/G)';
+                gradeColor = '#EF4444';
+            }
+            
+            const resultDiv = document.getElementById('grade-result');
+            resultDiv.innerHTML = `
+                <div class="text-lg font-bold">Predicted Grade: ${grade}</div>
+                <div class="text-sm">Overall Score: ${Math.round(overallScore)}%</div>
+            `;
+            resultDiv.style.background = gradeColor;
+            resultDiv.classList.remove('hidden');
+        }
+        
+        function setNewGoal() {
+            alert('Goal setting feature coming soon! You\'ll be able to set custom study targets and track your progress towards specific objectives.');
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Study Hours Chart
+            const studyHoursChart = echarts.init(document.getElementById('study-hours-chart'));
+            const studyHoursOption = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2D5A3D'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2D5A3D'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Study Hours',
+                    type: 'line',
+                    data: [2.5, 3, 1.5, 4, 2, 3.5, 2],
+                    smooth: true,
+                    itemStyle: {
+                        color: '#2D5A3D'
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(45, 90, 61, 0.3)' },
+                            { offset: 1, color: 'rgba(45, 90, 61, 0.1)' }
+                        ])
+                    }
+                }]
+            };
+            studyHoursChart.setOption(studyHoursOption);
+            
+            // Grade Predictions Chart
+            const gradeChart = echarts.init(document.getElementById('grade-predictions-chart'));
+            const gradeOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Maths', 'English', 'Science', 'Computer Science', 'French'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2D5A3D'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 1,
+                    max: 9,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#2D5A3D'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Predicted Grade',
+                    type: 'bar',
+                    data: [7, 6, 8, 6, 6],
+                    itemStyle: {
+                        color: function(params) {
+                            const colors = ['#2C7A7B', '#8B4B61', '#4A7C59', '#4F46E5', '#7B68A6'];
+                            return colors[params.dataIndex];
+                        }
+                    },
+                    barWidth: '60%'
+                }]
+            };
+            gradeChart.setOption(gradeOption);
+            
+            // Make charts responsive
+            window.addEventListener('resize', () => {
+                studyHoursChart.resize();
+                gradeChart.resize();
+            });
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            
+            // Animate elements on load
+            anime({
+                targets: '.subject-progress-item',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                easing: 'easeOutQuad',
+                duration: 600,
+                delay: anime.stagger(150)
+            });
+            
+            anime({
+                targets: '.achievement-badge.unlocked',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                easing: 'easeOutBack',
+                duration: 600,
+                delay: anime.stagger(100, {start: 800})
+            });
+            
+            anime({
+                targets: '.goal-card',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                easing: 'easeOutQuad',
+                duration: 600,
+                delay: anime.stagger(100, {start: 1000})
+            });
+        });
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>

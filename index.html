@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCSE Prep Pro - Your Complete Study Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage-green: #2D5A3D;
+            --warm-charcoal: #3A3A3A;
+            --soft-cream: #FAF9F6;
+            --muted-coral: #E8A598;
+            --dusty-blue: #7B9BB0;
+            --golden-yellow: #F4D03F;
+            --maths-teal: #2C7A7B;
+            --english-burgundy: #8B4B61;
+            --science-forest: #4A7C59;
+            --history-amber: #B8860B;
+            --geography-ocean: #4682B4;
+            --languages-purple: #7B68A6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--soft-cream) 0%, #F5F3F0 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(rgba(45, 90, 61, 0.1), rgba(45, 90, 61, 0.2)), 
+                        url('resources/hero-study.jpg') center/cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(45, 90, 61, 0.05) 0%, 
+                rgba(123, 155, 176, 0.05) 50%, 
+                rgba(232, 165, 152, 0.05) 100%);
+            animation: liquidFlow 20s ease-in-out infinite;
+        }
+        
+        @keyframes liquidFlow {
+            0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+            25% { transform: translateX(-10px) translateY(-5px) rotate(1deg); }
+            50% { transform: translateX(5px) translateY(-10px) rotate(-1deg); }
+            75% { transform: translateX(-5px) translateY(5px) rotate(0.5deg); }
+        }
+        
+        .glass-card {
+            background: rgba(250, 249, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 90, 61, 0.1);
+            box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+        }
+        
+        .subject-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(45, 90, 61, 0.15);
+        }
+        
+        .progress-ring {
+            transition: stroke-dasharray 0.5s ease-in-out;
+        }
+        
+        .study-planner {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .day-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 0.5rem;
+            background: var(--sage-green);
+            color: white;
+            border-radius: 0.5rem;
+        }
+        
+        .time-slot {
+            aspect-ratio: 1;
+            border: 2px dashed rgba(45, 90, 61, 0.2);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(250, 249, 246, 0.5);
+        }
+        
+        .time-slot:hover {
+            border-color: var(--sage-green);
+            background: rgba(45, 90, 61, 0.05);
+        }
+        
+        .time-slot.booked {
+            background: var(--sage-green);
+            color: white;
+            border-style: solid;
+        }
+        
+        .time-slot.maths { background: var(--maths-teal); }
+        .time-slot.english { background: var(--english-burgundy); }
+        .time-slot.science { background: var(--science-forest); }
+        .time-slot.history { background: var(--history-amber); }
+        .time-slot.geography { background: var(--geography-ocean); }
+        .time-slot.languages { background: var(--languages-purple); }
+        
+        .achievement-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .typing-text {
+            min-height: 2rem;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--sage-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-sage-green/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold" style="color: var(--sage-green);">
+                        📚 GCSE Prep Pro
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-gray-900 font-medium">Dashboard</a>
+                        <a href="subjects.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Subjects</a>
+                        <a href="practice.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Practice</a>
+                        <a href="progress.html" class="nav-link text-gray-600 hover:text-gray-900 font-medium">Progress</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-gray-900">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-screen flex items-center relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-5xl lg:text-7xl font-bold mb-6 text-gray-900 leading-tight" data-splitting>
+                        Master Your
+                        <span style="color: var(--sage-green);">GCSEs</span>
+                    </h1>
+                    <div class="typing-text text-xl lg:text-2xl mb-8 text-gray-700">
+                        <span id="typed-text"></span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
+                        <button onclick="scrollToPlanner()" class="px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300 hover:scale-105" style="background: var(--sage-green);">
+                            Start Planning
+                        </button>
+                        <button onclick="window.location.href='practice.html'" class="px-8 py-4 rounded-full border-2 font-semibold text-lg transition-all duration-300 hover:scale-105" style="border-color: var(--sage-green); color: var(--sage-green);">
+                            Take a Quiz
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-3 gap-6 mt-12">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold mb-2" style="color: var(--sage-green);" id="study-streak">7</div>
+                            <div class="text-sm text-gray-600">Day Streak</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold mb-2" style="color: var(--sage-green);" id="total-hours">42</div>
+                            <div class="text-sm text-gray-600">Hours Studied</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold mb-2" style="color: var(--sage-green);" id="achievements-count">12</div>
+                            <div class="text-sm text-gray-600">Achievements</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hidden lg:block">
+                    <div class="relative">
+                        <div class="glass-card rounded-2xl p-8">
+                            <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--sage-green);">This Week's Progress</h3>
+                            <div id="progress-chart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Study Planner Section -->
+    <section id="study-planner" class="py-20 bg-white/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-6" style="color: var(--sage-green);">Your Study Planner</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Plan your revision sessions, track your progress, and stay organized with our interactive study planner. 
+                    Click on any time slot to schedule your study sessions.
+                </p>
+            </div>
+            
+            <div class="glass-card rounded-2xl p-8 mb-12">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <div class="lg:w-2/3">
+                        <div class="study-planner">
+                            <div class="day-header">Mon</div>
+                            <div class="day-header">Tue</div>
+                            <div class="day-header">Wed</div>
+                            <div class="day-header">Thu</div>
+                            <div class="day-header">Fri</div>
+                            <div class="day-header">Sat</div>
+                            <div class="day-header">Sun</div>
+                            
+                            <!-- Time slots will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="lg:w-1/3">
+                        <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Quick Actions</h3>
+                        <div class="space-y-4">
+                            <button onclick="addStudySession()" class="w-full p-4 rounded-lg border-2 border-dashed text-left transition-all hover:bg-gray-50" style="border-color: var(--sage-green); color: var(--sage-green);">
+                                <div class="font-semibold">+ Add Study Session</div>
+                                <div class="text-sm opacity-75">Schedule your next revision</div>
+                            </button>
+                            <button onclick="viewTimetable()" class="w-full p-4 rounded-lg border-2 border-dashed text-left transition-all hover:bg-gray-50" style="border-color: var(--dusty-blue); color: var(--dusty-blue);">
+                                <div class="font-semibold">📅 View Full Timetable</div>
+                                <div class="text-sm opacity-75">See your complete schedule</div>
+                            </button>
+                            <button onclick="setStudyGoals()" class="w-full p-4 rounded-lg border-2 border-dashed text-left transition-all hover:bg-gray-50" style="border-color: var(--muted-coral); color: var(--muted-coral);">
+                                <div class="font-semibold">🎯 Set Goals</div>
+                                <div class="text-sm opacity-75">Define your study targets</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subject Overview -->
+    <section class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-6" style="color: var(--sage-green);">Your Subjects</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Track your progress across all GCSE subjects. Click on any subject to dive deeper into specific topics and resources.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Mathematics -->
+                <div class="subject-card glass-card rounded-2xl p-6" onclick="window.location.href='subjects.html#maths'">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">📊</div>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 transform -rotate-90">
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" class="text-gray-200"/>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" 
+                                        class="text-teal-600 progress-ring" stroke-dasharray="75 100" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">75%</div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--maths-teal);">Mathematics</h3>
+                    <p class="text-gray-600 mb-4">Algebra, Geometry, Statistics & Probability</p>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Next: Quadratic Equations</span>
+                        <span class="font-semibold" style="color: var(--maths-teal);">Grade 7</span>
+                    </div>
+                </div>
+
+                <!-- English Language -->
+                <div class="subject-card glass-card rounded-2xl p-6" onclick="window.location.href='subjects.html#english'">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">📝</div>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 transform -rotate-90">
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" class="text-gray-200"/>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" 
+                                        class="text-purple-600 progress-ring" stroke-dasharray="60 100" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">60%</div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--english-burgundy);">English Language</h3>
+                    <p class="text-gray-600 mb-4">Creative Writing, Analysis & Language Techniques</p>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Next: Descriptive Writing</span>
+                        <span class="font-semibold" style="color: var(--english-burgundy);">Grade 6</span>
+                    </div>
+                </div>
+
+                <!-- Science -->
+                <div class="subject-card glass-card rounded-2xl p-6" onclick="window.location.href='subjects.html#science'">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">🔬</div>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 transform -rotate-90">
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" class="text-gray-200"/>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" 
+                                        class="text-green-600 progress-ring" stroke-dasharray="85 100" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">85%</div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--science-forest);">Combined Science</h3>
+                    <p class="text-gray-600 mb-4">Biology, Chemistry & Physics</p>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Next: Chemical Reactions</span>
+                        <span class="font-semibold" style="color: var(--science-forest);">Grade 8</span>
+                    </div>
+                </div>
+
+                <!-- Computer Science -->
+                <div class="subject-card glass-card rounded-2xl p-6" onclick="window.location.href='subjects.html#computerscience'">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">💻</div>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 transform -rotate-90">
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" class="text-gray-200"/>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" 
+                                        class="text-indigo-600 progress-ring" stroke-dasharray="65 100" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">65%</div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2" style="color: #4F46E5;">Computer Science</h3>
+                    <p class="text-gray-600 mb-4">Programming, Algorithms & Data Structures</p>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Next: Python Functions</span>
+                        <span class="font-semibold" style="color: #4F46E5;">Grade 6</span>
+                    </div>
+                </div>
+
+                <!-- French -->
+                <div class="subject-card glass-card rounded-2xl p-6" onclick="window.location.href='subjects.html#french'">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">🗣️</div>
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16 transform -rotate-90">
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" class="text-gray-200"/>
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="none" 
+                                        class="text-purple-600 progress-ring" stroke-dasharray="55 100" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-sm font-bold">55%</div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--languages-purple);">French</h3>
+                    <p class="text-gray-600 mb-4">Grammar, Vocabulary & Conversation</p>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Next: Past Tense Verbs</span>
+                        <span class="font-semibold" style="color: var(--languages-purple);">Grade 6</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Achievement Showcase -->
+    <section class="py-20 bg-white/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-6" style="color: var(--sage-green);">Your Achievements</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Celebrate your study milestones and unlock new badges as you progress through your GCSE journey.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <div class="achievement-badge glass-card rounded-xl p-4 text-center">
+                    <div class="text-4xl mb-2">🏆</div>
+                    <div class="text-sm font-semibold">First Week</div>
+                    <div class="text-xs text-gray-500">Complete</div>
+                </div>
+                <div class="achievement-badge glass-card rounded-xl p-4 text-center">
+                    <div class="text-4xl mb-2">📊</div>
+                    <div class="text-sm font-semibold">Math Master</div>
+                    <div class="text-xs text-gray-500">Complete</div>
+                </div>
+                <div class="achievement-badge glass-card rounded-xl p-4 text-center">
+                    <div class="text-4xl mb-2">🔥</div>
+                    <div class="text-sm font-semibold">7-Day Streak</div>
+                    <div class="text-xs text-gray-500">Complete</div>
+                </div>
+                <div class="glass-card rounded-xl p-4 text-center opacity-50">
+                    <div class="text-4xl mb-2">🎯</div>
+                    <div class="text-sm font-semibold">Goal Setter</div>
+                    <div class="text-xs text-gray-500">Locked</div>
+                </div>
+                <div class="glass-card rounded-xl p-4 text-center opacity-50">
+                    <div class="text-4xl mb-2">⚡</div>
+                    <div class="text-sm font-semibold">Lightning Fast</div>
+                    <div class="text-xs text-gray-500">Locked</div>
+                </div>
+                <div class="glass-card rounded-xl p-4 text-center opacity-50">
+                    <div class="text-4xl mb-2">🌟</div>
+                    <div class="text-sm font-semibold">All-Star</div>
+                    <div class="text-xs text-gray-500">Locked</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-2xl font-bold mb-4" style="color: var(--sage-green);">📚 GCSE Prep Pro</div>
+            <p class="text-gray-400 mb-6">Your complete companion for GCSE success</p>
+            <div class="text-sm text-gray-500">
+                © 2024 GCSE Prep Pro. Designed for academic excellence.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Study Session Modal -->
+    <div id="study-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6" style="color: var(--sage-green);">Add Study Session</h3>
+            <form id="study-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Subject</label>
+                    <select id="subject-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                        <option value="maths">Mathematics</option>
+                        <option value="english">English Language</option>
+                        <option value="science">Combined Science</option>
+                        <option value="computerscience">Computer Science</option>
+                        <option value="french">French</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Session Type</label>
+                    <select id="session-type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                        <option value="revision">Revision</option>
+                        <option value="practice">Practice Papers</option>
+                        <option value="flashcards">Flashcards</option>
+                        <option value="review">Review</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold mb-2">Duration (minutes)</label>
+                    <input type="number" id="duration" value="60" min="15" max="180" step="15" 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 px-6 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 px-6 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                        Add Session
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>k text-sm font-semibold mb-2">Session Type</label>
+                    <select id="session-type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                        <option value="revision">Revision</option>
+                        <option value="practice">Practice Papers</option>
+                        <option value="flashcards">Flashcards</option>
+                        <option value="review">Review</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold mb-2">Duration (minutes)</label>
+                    <input type="number" id="duration" value="60" min="15" max="180" step="15" 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-green focus:border-transparent">
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 px-6 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-3 px-6 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                        Add Session
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

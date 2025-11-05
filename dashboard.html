@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GCSE Prep Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage-green: #2D5A3D;
+            --warm-charcoal: #3A3A3A;
+            --soft-cream: #FAF9F6;
+            --muted-coral: #E8A598;
+            --dusty-blue: #7B9BB0;
+            --golden-yellow: #F4D03F;
+            --maths-teal: #2C7A7B;
+            --english-burgundy: #8B4B61;
+            --science-forest: #4A7C59;
+            --computerscience-indigo: #4F46E5;
+            --french-purple: #7B68A6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--soft-cream) 0%, #F5F3F0 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(250, 249, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 90, 61, 0.1);
+            box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--sage-green), var(--dusty-blue));
+            color: white;
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--golden-yellow);
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--golden-yellow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.2);
+        }
+        
+        .progress-ring {
+            transition: stroke-dasharray 0.5s ease-in-out;
+        }
+        
+        .subject-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(45, 90, 61, 0.15);
+        }
+        
+        .video-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.1);
+        }
+        
+        .achievement-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .study-streak {
+            background: linear-gradient(135deg, var(--golden-yellow), #F59E0B);
+            color: white;
+        }
+        
+        .grade-prediction {
+            background: linear-gradient(135deg, var(--sage-green), var(--dusty-blue));
+            color: white;
+        }
+        
+        .wisdom-quote {
+            font-style: italic;
+            position: relative;
+        }
+        
+        .wisdom-quote::before {
+            content: '"';
+            font-size: 3rem;
+            position: absolute;
+            left: -2rem;
+            top: -1rem;
+            opacity: 0.3;
+        }
+        
+        .notification-dot {
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-sage-green/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold" style="color: var(--sage-green);">
+                        📚 GCSE Prep Pro
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="dashboard.html" class="text-gray-900 font-medium">Dashboard</a>
+                        <a href="subjects.html" class="text-gray-600 hover:text-gray-900 font-medium">Subjects</a>
+                        <a href="practice.html" class="text-gray-600 hover:text-gray-900 font-medium">Practice</a>
+                        <a href="progress.html" class="text-gray-600 hover:text-gray-900 font-medium">Progress</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="notification-dot absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="user-avatar-container">
+                        <img id="user-avatar" src="resources/default-avatar.png" alt="User Avatar" 
+                             class="user-avatar" onclick="showUserMenu()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 min-h-screen p-6 hidden lg:block">
+            <div class="mb-8 text-center">
+                <div class="relative inline-block mb-4">
+                    <img id="sidebar-avatar" src="resources/default-avatar.png" alt="User Avatar" 
+                         class="w-20 h-20 rounded-full border-4 border-yellow-400">
+                    <button onclick="changeAvatar()" class="absolute bottom-0 right-0 bg-yellow-400 text-gray-800 rounded-full w-6 h-6 text-xs hover:bg-yellow-300">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <h3 id="user-name" class="font-bold text-lg">Loading...</h3>
+                <p id="user-school" class="text-sm opacity-75">Student</p>
+            </div>
+            
+            <nav class="space-y-2">
+                <div class="nav-item active p-3 rounded-lg" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    Dashboard
+                </div>
+                <div class="nav-item p-3 rounded-lg" onclick="showSection('study-plan')">
+                    <i class="fas fa-calendar-alt mr-3"></i>
+                    Study Plan
+                </div>
+                <div class="nav-item p-3 rounded-lg" onclick="showSection('videos')">
+                    <i class="fas fa-video mr-3"></i>
+                    Video Lessons
+                </div>
+                <div class="nav-item p-3 rounded-lg" onclick="showSection('flashcards')">
+                    <i class="fas fa-layer-group mr-3"></i>
+                    Flashcards
+                </div>
+                <div class="nav-item p-3 rounded-lg" onclick="showSection('achievements')">
+                    <i class="fas fa-trophy mr-3"></i>
+                    Achievements
+                </div>
+                <div class="nav-item p-3 rounded-lg" onclick="showSection('settings')">
+                    <i class="fas fa-cog mr-3"></i>
+                    Settings
+                </div>
+            </nav>
+            
+            <div class="mt-8 p-4 bg-white bg-opacity-10 rounded-lg">
+                <h4 class="font-semibold mb-2">Quick Stats</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>Study Streak:</span>
+                        <span id="sidebar-streak" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Total Hours:</span>
+                        <span id="sidebar-hours" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Quizzes:</span>
+                        <span id="sidebar-quizzes" class="font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Welcome Header -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-4xl font-bold mb-2" style="color: var(--sage-green);">
+                                Welcome back, <span id="welcome-name">Student</span>! 👋
+                            </h1>
+                            <p class="text-xl text-gray-600">Ready to continue your learning journey?</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">Today is</div>
+                            <div id="current-date" class="text-lg font-semibold"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats Cards -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card rounded-2xl p-6 text-center grade-prediction">
+                        <div class="text-4xl font-bold mb-2" id="overall-grade-display">7.2</div>
+                        <div class="text-lg font-semibold mb-1">Overall Grade</div>
+                        <div class="text-sm opacity-90">Predicted Average</div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 text-center study-streak">
+                        <div class="text-4xl font-bold mb-2" id="current-streak-display">12</div>
+                        <div class="text-lg font-semibold mb-1">Day Streak</div>
+                        <div class="text-sm opacity-90">Study Consistency</div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 text-center" style="background: linear-gradient(135deg, var(--muted-coral), #DC2626); color: white;">
+                        <div class="text-4xl font-bold mb-2" id="total-hours-display">156</div>
+                        <div class="text-lg font-semibold mb-1">Hours Studied</div>
+                        <div class="text-sm opacity-90">Total This Year</div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 text-center" style="background: linear-gradient(135deg, var(--dusty-blue), #2563EB); color: white;">
+                        <div class="text-4xl font-bold mb-2" id="quiz-accuracy-display">82%</div>
+                        <div class="text-lg font-semibold mb-1">Quiz Accuracy</div>
+                        <div class="text-sm opacity-90">Last 30 Days</div>
+                    </div>
+                </div>
+                
+                <!-- Main Content Grid -->
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- Today's Focus -->
+                        <div class="glass-card rounded-2xl p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-2xl font-bold" style="color: var(--sage-green);">Today's Focus</h2>
+                                <button onclick="generateNewFocus()" class="px-4 py-2 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                                    <i class="fas fa-sync-alt mr-2"></i>New Focus
+                                </button>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="p-6 rounded-lg border-2 border-dashed" style="border-color: var(--maths-teal);">
+                                    <div class="flex items-center mb-4">
+                                        <div class="text-3xl mr-3">📊</div>
+                                        <div>
+                                            <h3 class="font-bold text-lg">Mathematics</h3>
+                                            <p class="text-sm text-gray-600">Algebra - Quadratic Equations</p>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Progress</span>
+                                            <span>75%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-teal-600 h-2 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <button onclick="startStudySession('maths', 'algebra')" class="w-full py-2 px-4 rounded-lg font-semibold text-white" style="background: var(--maths-teal);">
+                                        Start Session
+                                    </button>
+                                </div>
+                                
+                                <div class="p-6 rounded-lg border-2 border-dashed" style="border-color: var(--science-forest);">
+                                    <div class="flex items-center mb-4">
+                                        <div class="text-3xl mr-3">🔬</div>
+                                        <div>
+                                            <h3 class="font-bold text-lg">Combined Science</h3>
+                                            <p class="text-sm text-gray-600">Chemistry - Chemical Reactions</p>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Progress</span>
+                                            <span>85%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-600 h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <button onclick="startStudySession('science', 'chemistry')" class="w-full py-2 px-4 rounded-lg font-semibold text-white" style="background: var(--science-forest);">
+                                        Start Session
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div class="glass-card rounded-2xl p-8">
+                            <h2 class="text-2xl font-bold mb-6" style="color: var(--sage-green);">Recent Activity</h2>
+                            
+                            <div class="space-y-4" id="recent-activity">
+                                <!-- Activity items will be loaded here -->
+                                <div class="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="text-2xl mr-4">🎯</div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">Quiz Completed</div>
+                                        <div class="text-sm text-gray-600">Mathematics - Algebra (85%)</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">2 hours ago</div>
+                                </div>
+                                
+                                <div class="flex items-center p-4 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="text-2xl mr-4">📚</div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">Study Session</div>
+                                        <div class="text-sm text-gray-600">Science - Biology (45 minutes)</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">1 day ago</div>
+                                </div>
+                                
+                                <div class="flex items-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <div class="text-2xl mr-4">🏆</div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold">Achievement Unlocked</div>
+                                        <div class="text-sm text-gray-600">7-Day Study Streak!</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">2 days ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-8">
+                        <!-- Daily Wisdom -->
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Daily Wisdom</h3>
+                            <div class="wisdom-quote text-gray-700 mb-4">
+                                <p class="text-lg">Success is not final, failure is not fatal: it is the courage to continue that counts.</p>
+                            </div>
+                            <div class="text-sm text-gray-500">— Winston Churchill</div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <button onclick="startQuickQuiz()" class="w-full p-3 rounded-lg border-2 border-dashed text-left transition-all hover:bg-gray-50" style="border-color: var(--sage-green); color: var(--sage-green);">
+                                    <div class="font-semibold">⚡ Quick Quiz</div>
+                                    <div class="text-sm opacity-75">10 questions in 15 minutes</div>
+                                </button>
+                                
+                                <button onclick="openFlashcards()" class="w-full p-3 rounded-lg border-2 border-dashed text-left transition-all hover:bg-gray-50" style="border-color: var(--dusty-blue); color: var(--dusty-blue);">
+                                    <div class="font-semibold">📚 Review Flashcards</div>
+                                    <div class="text-sm opacity-75">15 cards due for review</div>
+                                </button>
+                                
+                                <button onclick="watchRecommendedVideo()" class="w-full p-3 rounded-lg border-2 border-dashed text-left transition-all hover:bg-gray-50" style="border-color: var(--muted-coral); color: var(--muted-coral);">
+                                    <div class="font-semibold">🎥 Watch Video</div>
+                                    <div class="text-sm opacity-75">Recommended for you</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Achievements -->
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-bold mb-4" style="color: var(--sage-green);">Recent Achievements</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="achievement-badge glass-card rounded-lg p-3 text-center">
+                                    <div class="text-2xl mb-1">🏆</div>
+                                    <div class="text-xs font-semibold">First Week</div>
+                                </div>
+                                <div class="achievement-badge glass-card rounded-lg p-3 text-center">
+                                    <div class="text-2xl mb-1">📊</div>
+                                    <div class="text-xs font-semibold">Math Master</div>
+                                </div>
+                                <div class="achievement-badge glass-card rounded-lg p-3 text-center">
+                                    <div class="text-2xl mb-1">🔥</div>
+                                    <div class="text-xs font-semibold">7-Day Streak</div>
+                                </div>
+                                <div class="glass-card rounded-lg p-3 text-center opacity-50">
+                                    <div class="text-2xl mb-1">🎯</div>
+                                    <div class="text-xs font-semibold">Goal Setter</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Study Plan Section -->
+            <div id="study-plan-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold mb-6" style="color: var(--sage-green);">Your Study Plan</h2>
+                    <p class="text-gray-600 mb-8">Personalized study schedule based on your goals and progress</p>
+                    
+                    <div id="study-planner" class="study-planner">
+                        <!-- Study planner will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Videos Section -->
+            <div id="videos-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold mb-6" style="color: var(--sage-green);">Video Lessons</h2>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="video-grid">
+                        <!-- Videos will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Flashcards Section -->
+            <div id="flashcards-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold mb-6" style="color: var(--sage-green);">Your Flashcards</h2>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="flashcard-grid">
+                        <!-- Flashcards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Achievements Section -->
+            <div id="achievements-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold mb-6" style="color: var(--sage-green);">Your Achievements</h2>
+                    
+                    <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <!-- Achievements will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div id="settings-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold mb-6" style="color: var(--sage-green);">Settings</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Profile Settings</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">First Name</label>
+                                    <input type="text" id="settings-firstname" class="w-full p-3 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Last Name</label>
+                                    <input type="text" id="settings-lastname" class="w-full p-3 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">School</label>
+                                    <input type="text" id="settings-school" class="w-full p-3 border border-gray-300 rounded-lg">
+                                </div>
+                                <button onclick="saveProfileSettings()" class="px-6 py-3 rounded-lg font-semibold text-white" style="background: var(--sage-green);">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Target Grades</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Mathematics</label>
+                                    <select id="target-maths" class="w-full p-3 border border-gray-300 rounded-lg">
+                                        <option value="9">Grade 9 (A*)</option>
+                                        <option value="8">Grade 8 (A*)</option>
+                                        <option value="7">Grade 7 (A)</option>
+                                        <option value="6">Grade 6 (B)</option>
+                                        <option value="5">Grade 5 (C/B)</option>
+                                        <option value="4">Grade 4 (C)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">English</label>
+                                    <select id="target-english" class="w-full p-3 border border-gray-300 rounded-lg">
+                                        <option value="9">Grade 9 (A*)</option>
+                                        <option value="8">Grade 8 (A*)</option>
+                                        <option value="7">Grade 7 (A)</option>
+                                        <option value="6">Grade 6 (B)</option>
+                                        <option value="5">Grade 5 (C/B)</option>
+                                        <option value="4">Grade 4 (C)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Science</label>
+                                    <select id="target-science" class="w-full p-3 border border-gray-300 rounded-lg">
+                                        <option value="9">Grade 9 (A*)</option>
+                                        <option value="8">Grade 8 (A*)</option>
+                                        <option value="7">Grade 7 (A)</option>
+                                        <option value="6">Grade 6 (B)</option>
+                                        <option value="5">Grade 5 (C/B)</option>
+                                        <option value="4">Grade 4 (C)</option>
+                                    </select>
+                                </div>
+                                <button onclick="saveTargetGrades()" class="px-6 py-3 rounded-lg font-semibold text-white" style="background: var(--dusty-blue);">
+                                    Save Targets
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="text-2xl font-bold mb-4" style="color: var(--sage-green);">📚 GCSE Prep Pro</div>
+            <p class="text-gray-400 mb-6">Your complete companion for GCSE success</p>
+            <div class="text-sm text-gray-500">
+                © 2024 GCSE Prep Pro. Designed for academic excellence.
+            </div>
+        </div>
+    </footer>
+
+    <!-- User Menu Modal -->
+    <div id="user-menu-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <img id="modal-avatar" src="resources/default-avatar.png" alt="User Avatar" 
+                     class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-yellow-400">
+                <h3 id="modal-user-name" class="text-2xl font-bold mb-2">User Name</h3>
+                <p id="modal-user-email" class="text-gray-600">user@example.com</p>
+            </div>
+            
+            <div class="space-y-4 mb-6">
+                <button onclick="showSection('settings')" class="w-full p-3 rounded-lg border-2 border-gray-200 hover:border-sage-green transition-all">
+                    <i class="fas fa-cog mr-3"></i>Settings
+                </button>
+                <button onclick="showSection('achievements')" class="w-full p-3 rounded-lg border-2 border-gray-200 hover:border-sage-green transition-all">
+                    <i class="fas fa-trophy mr-3"></i>Achievements
+                </button>
+                <button onclick="exportProgress()" class="w-full p-3 rounded-lg border-2 border-gray-200 hover:border-sage-green transition-all">
+                    <i class="fas fa-download mr-3"></i>Export Progress
+                </button>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="closeUserMenu()" class="flex-1 py-3 rounded-lg border-2 font-semibold" style="border-color: var(--dusty-blue); color: var(--dusty-blue);">
+                    Close
+                </button>
+                <button onclick="logout()" class="flex-1 py-3 rounded-lg font-semibold text-white" style="background: var(--muted-coral);">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
